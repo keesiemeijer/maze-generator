@@ -26,6 +26,7 @@ Maze.prototype.generateMazeNodes = function() {
 	let move_nodes = [];
 	let nswe_index = { 'n': 1, 's': 2, 'w': 3, 'e': 4, };
 	let opposite = { 'n': 2, 's': 1, 'w': 4, 'e': 3 };
+	let counter = 0;
 	let visited = 0;
 
 	for ( var i = 0; i < this.cells; i++ ) {
@@ -38,6 +39,16 @@ Maze.prototype.generateMazeNodes = function() {
 	this.nodes[ pos ] = replaceAt( this.nodes[ pos ], 0, 1 );
 
 	while ( visited < ( this.cells - 1 ) ) {
+
+		// max steps
+		if ( 75000 < counter ) {
+			alert( 'Please use smaller maze dimensions' );
+			move_nodes = [];
+			this.nodes = [];
+			this.matrix = [];
+			return;
+		}
+		counter++;
 
 		let next = this.getNeighbours( pos );
 		let directions = Object.keys( next ).filter( function( key ) {
@@ -144,6 +155,25 @@ Maze.prototype.draw = function() {
 
 	let canvas_width = ( ( this.width * 2 ) + 1 ) * this.wall_size;
 	let canvas_height = ( ( this.height * 2 ) + 1 ) * this.wall_size;
+
+	let error = false;
+
+	// Max dimension Firefox and Chrome
+	if ( ( 32767 <= canvas_width ) || ( 32760 <= canvas_height ) ) {
+		error = true;
+	}
+
+	// Max area (200 columns) * (200 rows) with wall size 10px
+	if ( 16080100 <= ( canvas_width * canvas_height ) ) {
+		error = true;
+	}
+
+	if ( error ) {
+		this.nodes = [];
+		this.matrix = [];
+		alert( 'Please use smaller maze dimensions' );
+		return;
+	}
 
 	canvas.width = canvas_width;
 	canvas.height = canvas_height;
