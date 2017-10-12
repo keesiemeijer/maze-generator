@@ -34,7 +34,7 @@ Solve.prototype.generateSolveNodes = function() {
 	let row_count = this.matrix.length;
 	for ( var y = 0; y < row_count; y++ ) {
 
-		if ( y === 0 || ( 0 === ( y % 2 ) ) ) {
+		if ( y === 0 || y === (row_count-1) || ( 0 === ( y % 2 ) ) ) {
 			// First and last rows are walls only.
 			// Even rows don't have any connections
 			continue;
@@ -49,7 +49,7 @@ Solve.prototype.generateSolveNodes = function() {
 
 			nswe = {
 				'n': ( 0 < y ) && stringVal( this.matrix[ y - 1 ], x ),
-				's': ( row_length > y ) && stringVal( this.matrix[ y + 1 ], x ),
+				's': ( row_count > y ) && stringVal( this.matrix[ y + 1 ], x ),
 				'w': ( 0 < x ) && stringVal( this.matrix[ y ], ( x - 1 ) ),
 				'e': ( row_length > x ) && stringVal( this.matrix[ y ], ( x + 1 ) )
 			}
