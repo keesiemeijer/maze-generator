@@ -11,7 +11,13 @@
 			.controls {
 				margin-bottom: 1em;
 			}
+			.hide {
+				display: none;
+			}
 		</style>
+		<script type='text/javascript' >
+			mazeNodes = {};
+		</script>
 	</head>
 	<body>
 		<h1>Maze Generator</h1>
@@ -35,8 +41,10 @@
 			</p>
 
 			<button onclick="initMaze();">Generate Maze</button>
+			<button id="solve" onclick="initSolve();" class='hide'>Solve Maze</button>
 		</div>
 		<canvas id="maze"></canvas>
 		<script type="text/javascript" src="maze.js"></script>
+		<script type="text/javascript" src="solve.js"></script>
 	</body>
 </html>
