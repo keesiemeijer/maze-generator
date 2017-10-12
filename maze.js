@@ -7,7 +7,15 @@ function initMaze() {
 	maze.generateMazeNodes();
 	maze.draw();
 
-	console.log( maze )
+	mazeNodes = {}
+	if ( maze.matrix.length ) {
+		mazeNodes = maze;
+	}
+
+	let solve_button = document.getElementById( "solve" );
+	if ( solve_button && solve_button.classList.contains( 'hide' ) ) {
+		solve_button.classList.toggle( "hide" );
+	}
 }
 
 function Maze( width, height, wall_size ) {
