@@ -15,9 +15,6 @@
 				display: none;
 			}
 		</style>
-		<script type='text/javascript' >
-			mazeNodes = {};
-		</script>
 	</head>
 	<body>
 		<h1>Maze Generator</h1>
@@ -39,12 +36,24 @@
 				<label for="height">Rows:</label>
 				<input id="height" type="text" name="" value="20">
 			</p>
+			<p>
+				<label for="entry">Maze entries:</label>
+				<select id="entry">
+					<option value="">none</option>
+					<option value="diagonal">diagonal</option>
+					<option value="horizontal">left and right</option>
+					<option value="vertical">top and bottom</option>
+				</select>
+			</p>
 
 			<button onclick="initMaze();">Generate Maze</button>
 			<button id="solve" onclick="initSolve();" class='hide'>Solve Maze</button>
 		</div>
 		<canvas id="maze"></canvas>
-		<script type="text/javascript" src="maze.js"></script>
-		<script type="text/javascript" src="solve.js"></script>
+		<script type="text/javascript" src="src/utils.js"></script>
+		<script type="text/javascript" src="src/entries.js"></script>
+		<script type="text/javascript" src="src/maze.js"></script>
+		<script type="text/javascript" src="src/solver.js"></script>
+		<script type="text/javascript" src="src/app.js"></script>
 	</body>
 </html>
