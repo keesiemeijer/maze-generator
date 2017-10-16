@@ -141,8 +141,8 @@ Maze.prototype.getMatrix = function( nodes ) {
 }
 
 Maze.prototype.getEntryNodes = function( access ) {
-	const y = ( ( this.width * 2 ) + 1 ) - 2;
-	const x = ( ( this.height * 2 ) + 1 ) - 2;
+	const y = ( ( this.height * 2 ) + 1 ) - 2;
+	const x = ( ( this.width * 2 ) + 1 ) - 2;
 
 	let entryNodes = {};
 
