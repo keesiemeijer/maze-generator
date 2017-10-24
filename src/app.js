@@ -6,12 +6,18 @@ function initMaze() {
 	const height = getInputIntVal( 'height', 20 );
 
 	let entryType = '';
-	const entry = document.getElementById('entry');
-	if(entry) {
-		entryType = entry.options[entry.selectedIndex].value;
+	const entry = document.getElementById( 'entry' );
+	if ( entry ) {
+		entryType = entry.options[ entry.selectedIndex ].value;
 	}
 
-	const maze = new Maze( width, height, wallSize, entryType );
+	let mazeBias = '';
+	const bias = document.getElementById( 'bias' );
+	if ( bias ) {
+		mazeBias = bias.options[ bias.selectedIndex ].value;
+	}
+
+	const maze = new Maze( width, height, wallSize, entryType, mazeBias );
 	maze.generate();
 	maze.draw();
 
