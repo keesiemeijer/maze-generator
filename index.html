@@ -37,20 +37,28 @@
 
 			<p>
 				<label for="width">Columns:</label>
-				<input id="width" type="number" name="" value="20">
+				<input id="width" type="number" name="width" value="20">
 			</p>
 
 			<p>
 				<label for="height">Rows:</label>
-				<input id="height" type="number" name="" value="20">
+				<input id="height" type="number" name="height" value="20">
 			</p>
 			<p>
 				<label for="entry">Maze entries:</label>
-				<select id="entry">
+				<select id="entry" name="entry">
 					<option value="">none</option>
 					<option value="diagonal">diagonal</option>
 					<option value="horizontal">left and right</option>
 					<option value="vertical">top and bottom</option>
+				</select>
+			</p>
+			<p>
+				<label for="bias">Bias:</label>
+				<select id="bias" name="bias">
+					<option value="">none</option>
+					<option value="horizontal">horizontal</option>
+					<option value="vertical">vertical</option>
 				</select>
 			</p>
 

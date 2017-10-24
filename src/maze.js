@@ -1,9 +1,10 @@
-function Maze( width, height, wallSize, entryType ) {
+function Maze( width, height, wallSize, entryType, mazeBias ) {
 	this.matrix = [];
 	this.width = parseInt( width, 10 );
 	this.height = parseInt( height, 10 );
 	this.wallSize = parseInt( wallSize, 10 );
 	this.entryNodes = this.getEntryNodes( entryType );
+	this.bias = mazeBias;
 }
 
 Maze.prototype.generate = function() {
@@ -38,15 +39,32 @@ Maze.prototype.parseMaze = function( nodes ) {
 	let visited = 0;
 	let position = parseInt( Math.floor( Math.random() * nodes.length ), 10 );
 
+	let biasCount = 0;
+	let biasFactor = 3;
+	if ( this.bias ) {
+		if ( ( 'horizontal' === this.bias ) ) {
+			biasFactor = ( 1 <= ( this.width / 100 ) ) ? Math.floor( this.width / 100 ) + 2 : 3;
+		} else if ( 'vertical' === this.bias ) {
+			biasFactor = ( 1 <= ( this.height / 100 ) ) ? Math.floor( this.height / 100 ) + 2 : 3;
+		}
+	}
+
 	// Set start node visited.
 	nodes[ position ] = replaceAt( nodes[ position ], 0, 1 );
 
 	while ( visited < ( mazeSize - 1 ) ) {
+		biasCount++;
 
 		let next = this.getNeighbours( position );
 		let directions = Object.keys( next ).filter( function( key ) {
 			return ( -1 !== next[ key ] ) && !stringVal( this[ next[ key ] ], 0 );
 		}, nodes );
+
+		if ( this.bias && ( biasCount !== biasFactor ) ) {
+			directions = this.biasDirections( directions );
+		} else {
+			biasCount = 0;
+		}
 
 		if ( directions.length ) {
 			++visited;
@@ -161,6 +179,24 @@ Maze.prototype.getEntryNodes = function( access ) {
 	}
 
 	return entryNodes;
+}
+
+Maze.prototype.biasDirections = function( directions ) {
+
+	const horizontal = ( -1 !== directions.indexOf( 'w' ) ) || ( -1 !== directions.indexOf( 'e' ) );
+	const vertical = ( -1 !== directions.indexOf( 'n' ) ) || ( -1 !== directions.indexOf( 's' ) );
+
+	if ( ( 'horizontal' === this.bias ) && horizontal ) {
+		directions = directions.filter( function( key ) {
+			return ( ( 'w' === key ) || ( 'e' === key ) )
+		} );
+	} else if ( ( 'vertical' === this.bias ) && vertical ) {
+		directions = directions.filter( function( key ) {
+			return ( ( 'n' === key ) || ( 's' === key ) )
+		} );
+	}
+
+	return directions;
 }
 
 Maze.prototype.getNeighbours = function( pos ) {
