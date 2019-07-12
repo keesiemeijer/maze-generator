@@ -4,6 +4,7 @@ function initMaze() {
 	const wallSize = getInputIntVal( 'wall-size', 10 );
 	const width = getInputIntVal( 'width', 20 );
 	const height = getInputIntVal( 'height', 20 );
+	const WallsRemove = getInputIntVal( 'remove_walls', 0 );
 
 	let entryType = '';
 	const entry = document.getElementById( 'entry' );
@@ -17,7 +18,7 @@ function initMaze() {
 		mazeBias = bias.options[ bias.selectedIndex ].value;
 	}
 
-	const maze = new Maze( width, height, wallSize, entryType, mazeBias );
+	const maze = new Maze( width, height, wallSize, entryType, mazeBias, WallsRemove );
 	maze.generate();
 	maze.draw();
 
@@ -39,7 +40,11 @@ function initSolve() {
 
 	const solver = new Solver( mazeNodes );
 	solver.solve();
-	solver.draw();
+	if(mazeNodes.wallsRemoved) {
+		solver.drawAstarSolve();
+	} else {
+		solver.draw();
+	}
 	mazeNodes = {}
 
 	const solveButton = document.getElementById( "solve" );
