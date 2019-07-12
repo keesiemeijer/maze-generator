@@ -12,6 +12,10 @@
 				width: 10em;
 				display: inline-block;
 			}
+			p.desc {
+				font-size: smaller;
+				display: inline-block;
+			}
 			.hide {
 				display: none;
 			}
@@ -32,18 +36,27 @@
 		<div class="controls">
 			<p>
 				<label for="wall-size">Wall thickness:</label>
-				<input id="wall-size" type="number" name="" value="10">
+				<input id="wall-size" type="number" name="" value="10" min="1">
 			</p>
 
 			<p>
 				<label for="width">Columns:</label>
-				<input id="width" type="number" name="width" value="20">
+				<input id="width" type="number" name="width" value="20" min="3" max="200">
 			</p>
 
 			<p>
 				<label for="height">Rows:</label>
-				<input id="height" type="number" name="height" value="20">
+				<input id="height" type="number" name="height" value="20" min="3" max="200">
 			</p>
+			<p style='padding-bottom: 0; margin-bottom: 0;'>
+				<label for="remove_walls">Remove maze walls:</label>
+				<input id="remove_walls" type="number" name="remove_walls" value="0" min="0" max="100">
+			</p>
+			<p class='desc'>
+				The maze can be solved in multiple ways if you remove walls. (maximum 200 walls)<br/>
+				The <a href='https://en.wikipedia.org/wiki/A*_search_algorithm'>A* search algorithm</a> is used to find the shortest path. This can take up more time.
+			</p>
+
 			<p>
 				<label for="entry">Maze entries:</label>
 				<select id="entry" name="entry">
