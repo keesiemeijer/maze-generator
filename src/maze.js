@@ -274,7 +274,7 @@ Maze.prototype.removeWall = function(y, i) {
 
 
 Maze.prototype.removeWalls = function() {
-	if (!this.WallsRemove) {
+	if (!this.WallsRemove || !this.matrix.length) {
 		return;
 	}
 	const min = 1;
