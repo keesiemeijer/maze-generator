@@ -60,7 +60,6 @@ Maze.prototype.parseMaze = function(nodes) {
 		biasCount++;
 
 		max++;
-
 		if ( 75000 < max ) {
 			alert( 'Please use smaller maze dimensions' );
 			move_nodes = [];

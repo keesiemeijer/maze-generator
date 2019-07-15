@@ -150,11 +150,11 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 	var openSet = [];
 	var closedSet = [];
 
-	let startNode = nodes[0];
-	let endNode = nodes[nodes.length - 1];
+	let startNode = 0;
+	let endNode = nodes.length - 1;
 	if ((false !== this.start) && (false !== this.finish)) {
-		startNode = nodes[this.start];
-		endNode = nodes[this.finish];
+		startNode = this.start;
+		endNode = this.finish;
 	}
 
 	openSet.push(startNode);
@@ -171,22 +171,22 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 		// Best next option
 		var winner = 0;
 		for (var i = 0; i < openSet.length; i++) {
-			if (openSet[i].f < openSet[winner].f) {
+			if (nodes[openSet[i]].f < nodes[openSet[winner]].f) {
 				winner = i;
 			}
 		}
 
-		var current = openSet[winner];
+		var current = nodes[openSet[winner]];
+		var currentKey = openSet[winner]
 
 		// Did I finish?
-		if (current === endNode) {
+		if (current === nodes[endNode]) {
 			this.solved = true;
-
 			break;
 		}
 
-		removeFromArray(openSet, current);
-		closedSet.push(current);
+		removeFromArray(openSet, openSet[winner]);
+		closedSet.push(currentKey);
 
 		var neighbors = [];
 		for (key in current.connected) {
@@ -199,12 +199,12 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 			var neighbor = nodes[neighbors[i]];
 
 			// Valid next spot?
-			if (!closedSet.includes(neighbor)) {
+			if (!closedSet.includes(neighbors[i])) {
 				var tempG = current.g + this.heuristic(neighbor, current);
 
 				// Is this a better path than before?
 				var newPath = false;
-				if (openSet.includes(neighbor)) {
+				if (openSet.includes(neighbors[i])) {
 					if (tempG < neighbor.g) {
 						neighbor.g = tempG;
 						newPath = true;
@@ -212,14 +212,14 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 				} else {
 					neighbor.g = tempG;
 					newPath = true;
-					openSet.push(neighbor);
+					openSet.push(neighbors[i]);
 				}
 
 				// Yes, it's a better path
 				if (newPath) {
-					neighbor.h = this.heuristic(neighbor, endNode);
+					neighbor.h = this.heuristic(neighbor, nodes[endNode]);
 					neighbor.f = neighbor.g + neighbor.h;
-					neighbor.previous = current;
+					neighbor.previous = currentKey;
 				}
 			}
 		}
@@ -229,9 +229,12 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 	var temp = current;
 	path.push(temp);
 	while (temp.previous) {
-		path.push(temp.previous);
-		temp = temp.previous;
+		path.push(nodes[temp.previous]);
+		temp = nodes[temp.previous];
 	}
+
+	// Add the startNode for drawing the solved path.
+	path.push(nodes[startNode]);
 
 	return path;
 }
@@ -258,7 +261,6 @@ Solver.prototype.walkMaze = function(nodes) {
 	const opposite = { 'n': 's', 's': 'n', 'w': 'e', 'e': 'w' };
 
 	while (this.solved === false) {
-
 		max++
 		if ( 30000 < max ) {
 			alert( 'Solving maze took too long. Please try again or use smaller maze dimensions' );
@@ -367,32 +369,34 @@ Solver.prototype.drawAstarSolve = function() {
 	}
 
 	for (var i = nodes.length - 1; i >= 0; i--) {
-
-		if (nodes[i]['previous'] === undefined) {
+		if (!(0 <= (i - 1))) {
 			continue;
 		}
 
+		let previousX = nodes[i - 1].x;
+		let previousY = nodes[i - 1].y;
+
 		let start;
 		let to_x;
-		if (nodes[i].y === nodes[i]['previous'].y) {
+		if (nodes[i].y === previousY) {
 			let start = nodes[i].x
-			let to_x = ((nodes[i]['previous'].x - start) * wallSize) + wallSize;
+			let to_x = ((previousX - start) * wallSize) + wallSize;
 
-			if (nodes[i].x > nodes[i]['previous'].x) {
-				start = nodes[i]['previous'].x
-				to_x = ((nodes[i].x - nodes[i]['previous'].x) * wallSize) + wallSize;
+			if (nodes[i].x > previousX) {
+				start = previousX
+				to_x = ((nodes[i].x - previousX) * wallSize) + wallSize;
 			}
 
 			ctx.fillRect((start * wallSize), (nodes[i].y * wallSize), to_x, wallSize);
 		}
 
-		if (nodes[i].x === nodes[i]['previous'].x) {
+		if (nodes[i].x === previousX) {
 			let start = nodes[i].y;
-			let to_y = ((nodes[i]['previous'].y - start) * wallSize) + wallSize;
+			let to_y = ((previousY - start) * wallSize) + wallSize;
 
-			if (nodes[i].y > nodes[i]['previous'].y) {
-				start = nodes[i]['previous'].y
-				to_y = ((nodes[i].y - nodes[i]['previous'].y) * wallSize) + wallSize;
+			if (nodes[i].y > previousY) {
+				start = previousY;
+				to_y = ((nodes[i].y - previousY) * wallSize) + wallSize;
 			}
 
 			ctx.fillRect((nodes[i].x * wallSize), (start * wallSize), wallSize, to_y);
@@ -404,8 +408,6 @@ Solver.prototype.drawAstarSolve = function() {
 		ctx.fillRect((gateExit.x * wallSize), (gateExit.y * wallSize), wallSize, wallSize);
 	}
 }
-
-
 
 Solver.prototype.draw = function() {
 	const nodes = this.path;
