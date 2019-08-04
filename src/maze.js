@@ -10,10 +10,34 @@ function Maze(width, height, wallSize, entryType, mazeBias, WallsRemove) {
 }
 
 Maze.prototype.generate = function() {
+	if (!this.isValidSize()) {
+		this.matrix = [];
+		alert('Please use smaller maze dimensions');
+		return;
+	}
+
 	let nodes = this.generateNodes();
 	nodes = this.parseMaze(nodes);
 	this.getMatrix(nodes);
 	this.removeWalls();
+}
+
+Maze.prototype.isValidSize = function() {
+	const max = maxCanvasDimension;
+	const canvas_width = ((this.width * 2) + 1) * this.wallSize;
+	const canvas_height = ((this.height * 2) + 1) * this.wallSize;
+
+	// Max dimension Firefox and Chrome
+	if (max && ((max <= canvas_width) || (max <= canvas_height))) {
+		return false;
+	}
+
+	// Max area (200 columns) * (200 rows) with wall size 10px
+	if (maxCanvas && (maxCanvas <= (canvas_width * canvas_height))) {
+		return false;
+	}
+
+	return true;
 }
 
 Maze.prototype.generateNodes = function() {
@@ -38,6 +62,7 @@ Maze.prototype.parseMaze = function(nodes) {
 		return;
 	}
 
+	let max = 0;
 	let moveNodes = [];
 	let visited = 0;
 	let position = parseInt(Math.floor(Math.random() * nodes.length), 10);
@@ -57,6 +82,14 @@ Maze.prototype.parseMaze = function(nodes) {
 
 	while (visited < (mazeSize - 1)) {
 		biasCount++;
+
+		max++;
+		if (maxMaze && (maxMaze < max)) {
+			alert('Please use smaller maze dimensions');
+			move_nodes = [];
+			this.matrix = [];
+			return [];
+		}
 
 		let next = this.getNeighbours(position);
 		let directions = Object.keys(next).filter(function(key) {
@@ -222,22 +255,22 @@ Maze.prototype.removeWall = function(y, i) {
 
 	if (!even && (i % 2 === 0)) {
 		// Uneven row and even column
-		hasTop = (y - 2 > 0) && (1 === stringVal(this.matrix[y - 2], i));
-		hasBottom = (y + 2 < this.matrix.length) && (1 === stringVal(this.matrix[y + 2], i));
+		const hasTop = (y - 2 > 0) && (1 === stringVal(this.matrix[y - 2], i));
+		const hasBottom = (y + 2 < this.matrix.length) && (1 === stringVal(this.matrix[y + 2], i));
 
 		if (hasTop && hasBottom) {
 			this.matrix[y] = replaceAt(this.matrix[y], i, '0');
 			return true;
 		} else if (!hasTop && hasBottom) {
-			var left = 1 === stringVal(this.matrix[y - 1], i - 1);
-			var right = 1 === stringVal(this.matrix[y - 1], i + 1);
+			const left = 1 === stringVal(this.matrix[y - 1], i - 1);
+			const right = 1 === stringVal(this.matrix[y - 1], i + 1);
 			if (left || right) {
 				this.matrix[y] = replaceAt(this.matrix[y], i, '0');
 				return true;
 			}
 		} else if (!hasBottom && hasTop) {
-			var left = 1 === stringVal(this.matrix[y + 1], i - 1);
-			var right = 1 === stringVal(this.matrix[y + 1], i + 1);
+			const left = 1 === stringVal(this.matrix[y + 1], i - 1);
+			const right = 1 === stringVal(this.matrix[y + 1], i + 1);
 			if (left || right) {
 				this.matrix[y] = replaceAt(this.matrix[y], i, '0');
 				return true;
@@ -246,22 +279,22 @@ Maze.prototype.removeWall = function(y, i) {
 
 	} else if (even && (i % 2 !== 0)) {
 		// Even row and uneven column
-		hasLeft = 1 === stringVal(this.matrix[y], i - 2);
-		hasRight = 1 === stringVal(this.matrix[y], i + 2);
+		const hasLeft = 1 === stringVal(this.matrix[y], i - 2);
+		const hasRight = 1 === stringVal(this.matrix[y], i + 2);
 
 		if (hasLeft && hasRight) {
 			this.matrix[y] = replaceAt(this.matrix[y], i, '0');
 			return true;
 		} else if (!hasLeft && hasRight) {
-			var top = 1 === stringVal(this.matrix[y - 1], i - 1);
-			var bottom = 1 === stringVal(this.matrix[y + 1], i - 1);
+			const top = 1 === stringVal(this.matrix[y - 1], i - 1);
+			const bottom = 1 === stringVal(this.matrix[y + 1], i - 1);
 			if (top || bottom) {
 				this.matrix[y] = replaceAt(this.matrix[y], i, '0');
 				return true;
 			}
 		} else if (!hasRight && hasLeft) {
-			var top = 1 === stringVal(this.matrix[y - 1], i + 1);
-			var bottom = 1 === stringVal(this.matrix[y + 1], i + 1);
+			const top = 1 === stringVal(this.matrix[y - 1], i + 1);
+			const bottom = 1 === stringVal(this.matrix[y + 1], i + 1);
 			if (top || bottom) {
 				this.matrix[y] = replaceAt(this.matrix[y], i, '0');
 				return true;
@@ -272,16 +305,15 @@ Maze.prototype.removeWall = function(y, i) {
 	return false;
 }
 
-
 Maze.prototype.removeWalls = function() {
 	if (!this.WallsRemove || !this.matrix.length) {
 		return;
 	}
+
 	const min = 1;
 	const max = this.matrix.length - 1;
-	const maxTries = 200;
+	const maxTries = maxRemoveWalls ? maxRemoveWalls : 300;
 	let tries = 0;
-	let broken = 0;
 
 	while (tries < maxTries) {
 		tries++;
@@ -298,10 +330,8 @@ Maze.prototype.removeWalls = function() {
 		let walls = [];
 		let row = this.matrix[y];
 
-
-
 		// Get walls from random row
-		for (var i = 0; i < row.length; i++) {
+		for (let i = 0; i < row.length; i++) {
 			if (i === 0 || i === row.length - 1) {
 				continue;
 			}
@@ -316,7 +346,7 @@ Maze.prototype.removeWalls = function() {
 		shuffleArray(walls);
 
 		// Try breaking a wall for this row.
-		for (var i = 0; i < walls.length; i++) {
+		for (let i = 0; i < walls.length; i++) {
 			if (this.removeWall(y, walls[i])) {
 
 				// Wall can be broken
@@ -325,8 +355,6 @@ Maze.prototype.removeWalls = function() {
 			}
 		}
 	}
-
-
 }
 
 Maze.prototype.draw = function() {
@@ -337,6 +365,12 @@ Maze.prototype.draw = function() {
 
 	const canvas_width = ((this.width * 2) + 1) * this.wallSize;
 	const canvas_height = ((this.height * 2) + 1) * this.wallSize;
+
+	if (!this.isValidSize()) {
+		this.matrix = [];
+		alert('Please use smaller maze dimensions');
+		return;
+	}
 
 	canvas.width = canvas_width;
 	canvas.height = canvas_height;

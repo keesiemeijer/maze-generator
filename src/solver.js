@@ -21,11 +21,10 @@ Solver.prototype.solve = function() {
 Solver.prototype.generateSolveNodes = function(start, end) {
 	const matrix = this.maze.matrix;
 	const nodes = [];
-
-	var f = 0;
-	var g = 0;
-	var h = 0;
-	var previous = undefined;
+	const f = 0;
+	const g = 0;
+	const h = 0;
+	const previous = undefined;
 
 	const rowCount = matrix.length;
 	for (let y = 0; y < rowCount; y++) {
@@ -37,7 +36,7 @@ Solver.prototype.generateSolveNodes = function(start, end) {
 		}
 
 		let rowLength = matrix[y].length;
-		for (var x = 0; x < rowLength; x++) {
+		for (let x = 0; x < rowLength; x++) {
 			if (stringVal(matrix[y], x)) {
 				// Walls don't have connections.
 				continue;
@@ -147,8 +146,8 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 		return;
 	}
 
-	var openSet = [];
-	var closedSet = [];
+	let openSet = [];
+	let closedSet = [];
 
 	let startNode = 0;
 	let endNode = nodes.length - 1;
@@ -159,18 +158,25 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 
 	openSet.push(startNode);
 
+	let max = 0;
+
 	while (openSet.length > 0) {
+		max++
+		if ( maxSolve && (maxSolve < max) ) {
+			alert( 'Solving maze took too long. Please try again or use smaller maze dimensions' );
+			break
+		}
 
 		// Best next option
-		var winner = 0;
-		for (var i = 0; i < openSet.length; i++) {
+		let winner = 0;
+		for (let i = 0; i < openSet.length; i++) {
 			if (nodes[openSet[i]].f < nodes[openSet[winner]].f) {
 				winner = i;
 			}
 		}
 
 		var current = nodes[openSet[winner]];
-		var currentKey = openSet[winner]
+		let currentKey = openSet[winner]
 
 		// Did I finish?
 		if (current === nodes[endNode]) {
@@ -181,22 +187,22 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 		removeFromArray(openSet, openSet[winner]);
 		closedSet.push(currentKey);
 
-		var neighbors = [];
+		let neighbors = [];
 		for (key in current.connected) {
 			if (current.connected.hasOwnProperty(key)) {
 				neighbors.push(current.connected[key]);
 			}
 		}
 
-		for (var i = 0; i < neighbors.length; i++) {
-			var neighbor = nodes[neighbors[i]];
+		for (let i = 0; i < neighbors.length; i++) {
+			let neighbor = nodes[neighbors[i]];
 
 			// Valid next spot?
 			if (!closedSet.includes(neighbors[i])) {
-				var tempG = current.g + this.heuristic(neighbor, current);
+				let tempG = current.g + this.heuristic(neighbor, current);
 
 				// Is this a better path than before?
-				var newPath = false;
+				let newPath = false;
 				if (openSet.includes(neighbors[i])) {
 					if (tempG < neighbor.g) {
 						neighbor.g = tempG;
@@ -219,7 +225,7 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 	}
 
 	path = [];
-	var temp = current;
+	let temp = current;
 	path.push(temp);
 	while (temp.previous) {
 		path.push(nodes[temp.previous]);
@@ -246,6 +252,7 @@ Solver.prototype.walkMaze = function(nodes) {
 		endNode = this.finish;
 	}
 
+	let max = 0;
 	let i = 0;
 	let node = false;
 	let from = false;
@@ -253,6 +260,11 @@ Solver.prototype.walkMaze = function(nodes) {
 	const opposite = { 'n': 's', 's': 'n', 'w': 'e', 'e': 'w' };
 
 	while (this.solved === false) {
+		max++
+		if ( maxSolve && (maxSolve < max) ) {
+			alert( 'Solving maze took too long. Please try again or use smaller maze dimensions' );
+			break
+		}
 
 		if (!node) {
 			i = startNode;
@@ -355,7 +367,7 @@ Solver.prototype.drawAstarSolve = function() {
 		ctx.fillRect((gateEntry.x * wallSize), (gateEntry.y * wallSize), wallSize, wallSize);
 	}
 
-	for (var i = nodes.length - 1; i >= 0; i--) {
+	for (let i = nodes.length - 1; i >= 0; i--) {
 		if (!(0 <= (i - 1))) {
 			continue;
 		}
@@ -416,6 +428,7 @@ Solver.prototype.draw = function() {
 	const ctx = canvas.getContext('2d');
 	ctx.fillStyle = "#cc3737";
 
+	let max = 0;
 	let i;
 	let startNode = 0;
 	let endNode = nodes.length - 1;
@@ -432,6 +445,12 @@ Solver.prototype.draw = function() {
 	}
 
 	while (finished === false) {
+		max++
+		if ( maxSolve && (maxSolve < max) ) {
+			alert( 'Solving maze took too long. Please try again or use smaller maze dimensions' );
+			break
+		}
+
 		if (!node) {
 			node = nodes[startNode];
 		}
