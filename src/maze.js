@@ -1,12 +1,43 @@
-function Maze(width, height, wallSize, entryType, mazeBias, WallsRemove) {
+function Maze(args) {
+	const defaults = {
+		width: 20,
+		height: 20,
+		wallSize: 10,
+		entryType: '',
+		bias: '',
+		color: '#000000',
+		backgroundColor: '#FFFFFF',
+		solveColor: '#cc3737',
+		removeWalls: 0,
+
+		// Maximum 300 walls can be removed
+		maxWallsRemove: 300,
+
+		// No restrictions
+		maxMaze: 0,
+		maxCanvas: 0,
+		maxCanvasDimension: 0,
+		maxSolve: 0,
+	}
+
+	const settings = Object.assign({}, defaults, args);
+
 	this.matrix = [];
-	this.width = parseInt(width, 10);
-	this.height = parseInt(height, 10);
-	this.wallSize = parseInt(wallSize, 10);
-	this.WallsRemove = parseInt(WallsRemove, 10);
-	this.entryNodes = this.getEntryNodes(entryType);
-	this.bias = mazeBias;
 	this.wallsRemoved = 0;
+	this.width = parseInt(settings['width'], 10);
+	this.height = parseInt(settings['height'], 10);
+	this.wallSize = parseInt(settings['wallSize'], 10);
+	this.removeWalls = parseInt(settings['removeWalls'], 10);
+	this.entryNodes = this.getEntryNodes(settings['entryType']);
+	this.bias = settings['bias'];
+	this.color = settings['color'];
+	this.backgroundColor = settings['backgroundColor'];
+	this.solveColor = settings['solveColor'];
+	this.maxMaze = parseInt(settings['maxMaze'], 10);
+	this.maxCanvas = parseInt(settings['maxCanvas'], 10);
+	this.maxCanvasDimension = parseInt(settings['maxCanvasDimension'], 10);
+	this.maxSolve = parseInt(settings['maxSolve'], 10);
+	this.maxWallsRemove = parseInt(settings['maxWallsRemove'], 10);
 }
 
 Maze.prototype.generate = function() {
@@ -19,11 +50,11 @@ Maze.prototype.generate = function() {
 	let nodes = this.generateNodes();
 	nodes = this.parseMaze(nodes);
 	this.getMatrix(nodes);
-	this.removeWalls();
+	this.removeMazeWalls();
 }
 
 Maze.prototype.isValidSize = function() {
-	const max = maxCanvasDimension;
+	const max = this.maxCanvasDimension;
 	const canvas_width = ((this.width * 2) + 1) * this.wallSize;
 	const canvas_height = ((this.height * 2) + 1) * this.wallSize;
 
@@ -33,7 +64,7 @@ Maze.prototype.isValidSize = function() {
 	}
 
 	// Max area (200 columns) * (200 rows) with wall size 10px
-	if (maxCanvas && (maxCanvas <= (canvas_width * canvas_height))) {
+	if (this.maxCanvas && (this.maxCanvas <= (canvas_width * canvas_height))) {
 		return false;
 	}
 
@@ -84,7 +115,7 @@ Maze.prototype.parseMaze = function(nodes) {
 		biasCount++;
 
 		max++;
-		if (maxMaze && (maxMaze < max)) {
+		if (this.maxMaze && (this.maxMaze < max)) {
 			alert('Please use smaller maze dimensions');
 			move_nodes = [];
 			this.matrix = [];
@@ -305,21 +336,21 @@ Maze.prototype.removeWall = function(y, i) {
 	return false;
 }
 
-Maze.prototype.removeWalls = function() {
-	if (!this.WallsRemove || !this.matrix.length) {
+Maze.prototype.removeMazeWalls = function() {
+	if (!this.removeWalls || !this.matrix.length) {
 		return;
 	}
 
 	const min = 1;
 	const max = this.matrix.length - 1;
-	const maxTries = maxRemoveWalls ? maxRemoveWalls : 300;
+	const maxTries = this.maxWallsRemove;
 	let tries = 0;
 
 	while (tries < maxTries) {
 		tries++;
 
 		// Did we reached the goal
-		if (this.wallsRemoved >= this.WallsRemove) {
+		if (this.wallsRemoved >= this.removeWalls) {
 			break;
 		}
 
@@ -363,20 +394,24 @@ Maze.prototype.draw = function() {
 		return;
 	}
 
-	const canvas_width = ((this.width * 2) + 1) * this.wallSize;
-	const canvas_height = ((this.height * 2) + 1) * this.wallSize;
-
 	if (!this.isValidSize()) {
 		this.matrix = [];
 		alert('Please use smaller maze dimensions');
 		return;
 	}
 
-	canvas.width = canvas_width;
-	canvas.height = canvas_height;
+	canvas.width = ((this.width * 2) + 1) * this.wallSize;;
+	canvas.height = ((this.height * 2) + 1) * this.wallSize;
 
 	const ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	// Add background
+	ctx.fillStyle = this.backgroundColor;
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	// Set maze collor
+	ctx.fillStyle = this.color;
 
 	const row_count = this.matrix.length;
 	const gateEntry = getEntryNode(this.entryNodes, 'start', true);

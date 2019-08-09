@@ -1,5 +1,6 @@
 function Solver(maze) {
 	this.maze = maze;
+	this.maxSolve = maze.maxSolve;
 	this.start = false;
 	this.finish = false;
 	this.solved = false;
@@ -162,8 +163,8 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 
 	while (openSet.length > 0) {
 		max++
-		if ( maxSolve && (maxSolve < max) ) {
-			alert( 'Solving maze took too long. Please try again or use smaller maze dimensions' );
+		if (this.maxSolve && (this.maxSolve < max)) {
+			alert('Solving maze took too long. Please try again or use smaller maze dimensions');
 			break
 		}
 
@@ -261,8 +262,8 @@ Solver.prototype.walkMaze = function(nodes) {
 
 	while (this.solved === false) {
 		max++
-		if ( maxSolve && (maxSolve < max) ) {
-			alert( 'Solving maze took too long. Please try again or use smaller maze dimensions' );
+		if (this.maxSolve && (this.maxSolve < max)) {
+			alert('Solving maze took too long. Please try again or use smaller maze dimensions');
 			break
 		}
 
@@ -351,7 +352,7 @@ Solver.prototype.drawAstarSolve = function() {
 	}
 
 	const ctx = canvas.getContext('2d');
-	ctx.fillStyle = "#cc3737";
+	ctx.fillStyle = this.maze.solveColor;
 
 	let startNode = 0;
 	let endNode = nodes.length - 1;
@@ -426,7 +427,7 @@ Solver.prototype.draw = function() {
 	}
 
 	const ctx = canvas.getContext('2d');
-	ctx.fillStyle = "#cc3737";
+	ctx.fillStyle = this.maze.solveColor;
 
 	let max = 0;
 	let i;
@@ -446,8 +447,8 @@ Solver.prototype.draw = function() {
 
 	while (finished === false) {
 		max++
-		if ( maxSolve && (maxSolve < max) ) {
-			alert( 'Solving maze took too long. Please try again or use smaller maze dimensions' );
+		if (this.maxSolve && (this.maxSolve < max)) {
+			alert('Solving maze took too long. Please try again or use smaller maze dimensions');
 			break
 		}
 

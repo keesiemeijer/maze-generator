@@ -1,58 +1,90 @@
 // Global variables
 let mazeNodes = {};
 
-// Maze Restrictions.
-//
-// Set values to 0 for no restriction.
-//
-// Be aware that the larger the maze, the more memory is consumed.
-// With recursive backtracking the whole maze is stored in memory.
+// Check if globals are defined
+if (typeof maxMaze === 'undefined') {
+	maxMaze = 0;
+}
 
-const maxMaze = 75000;
-const maxSolve = 30000;
-const maxCanvas = 16080100;
-const maxCanvasDimension = 32760;
+if (typeof maxSolve === 'undefined') {
+	maxSolve = 0;
+}
 
-// Maximum walls you can remove
-const maxRemoveWalls = 300;
+if (typeof maxCanvas === 'undefined') {
+	maxCanvas = 0;
+}
+
+if (typeof maxCanvasDimension === 'undefined') {
+	maxCanvasDimension = 0;
+}
+
+if (typeof maxWallsRemove === 'undefined') {
+	maxWallsRemove = 300;
+}
 
 // Update remove max walls html
 const removeMaxWallsText = document.querySelector('.desc span');
 if (removeMaxWallsText) {
-	removeMaxWallsText.innerHTML = maxRemoveWalls;
+	removeMaxWallsText.innerHTML = maxWallsRemove;
 }
 
 const removeWallsInput = document.getElementById('remove_walls');
 if (removeWallsInput) {
-	removeWallsInput.max = maxRemoveWalls;
+	removeWallsInput.max = maxWallsRemove;
 }
 
 function initMaze() {
-	const wallSize = getInputIntVal('wall-size', 10);
-	const width = getInputIntVal('width', 20);
-	const height = getInputIntVal('height', 20);
+	const settings = {
+		width: getInputIntVal('width', 20),
+		height: getInputIntVal('height', 20),
+		wallSize: getInputIntVal('wall-size', 10),
+		removeWalls: getInputIntVal('remove_walls', 0),
+		entryType: '',
+		bias: '',
+		color: '#000000',
+		backgroudColor: '#FFFFFF',
+		solveColor: '#cc3737',
 
-	let WallsRemove = getInputIntVal('remove_walls', 0);
-	if (WallsRemove > maxRemoveWalls) {
-		WallsRemove = maxRemoveWalls;
+		// restrictions
+		maxMaze: maxMaze,
+		maxCanvas: maxCanvas,
+		maxCanvasDimension: maxCanvasDimension,
+		maxSolve: maxSolve,
+		maxWallsRemove: maxWallsRemove,
+	}
+
+	const colors = ['color', 'backgroundColor', 'solveColor'];
+	for (let i = 0; i < colors.length; i++) {
+		const colorInput = document.getElementById(colors[i]);
+		settings[colors[i]] = colorInput.value
+		if (!isValidHex(settings[colors[i]])) {
+			let defaultColor = colorInput.parentNode.dataset.default;
+			colorInput.value = defaultColor;
+			settings[colors[i]] = defaultColor;
+		}
+
+		const colorSample = colorInput.parentNode.querySelector('.color-sample');
+		colorSample.style = 'background-color: ' + settings[colors[i]] + ';';
+	}
+
+	if (settings['removeWalls'] > maxWallsRemove) {
+		settings['removeWalls'] = maxWallsRemove;
 		if (removeWallsInput) {
-			removeWallsInput.value = maxRemoveWalls;
+			removeWallsInput.value = maxWallsRemove;
 		}
 	}
 
-	let entryType = '';
 	const entry = document.getElementById('entry');
 	if (entry) {
-		entryType = entry.options[entry.selectedIndex].value;
+		settings['entryType'] = entry.options[entry.selectedIndex].value;
 	}
 
-	let mazeBias = '';
 	const bias = document.getElementById('bias');
 	if (bias) {
-		mazeBias = bias.options[bias.selectedIndex].value;
+		settings['bias'] = bias.options[bias.selectedIndex].value;
 	}
 
-	const maze = new Maze(width, height, wallSize, entryType, mazeBias, WallsRemove);
+	const maze = new Maze(settings);
 	maze.generate();
 	maze.draw();
 
