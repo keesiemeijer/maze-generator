@@ -8,7 +8,7 @@
 				font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 				margin: 0 1em 1em;
 			}
-			p label {
+			p label, .color-picker label {
 				width: 10em;
 				display: inline-block;
 			}
@@ -25,6 +25,37 @@
 			canvas {
 				/* if canvas overflows body */
 				margin-right: 1em;
+			}
+			.color-picker {
+				margin: 16px 0;
+				display:flex;
+				position: relative;
+			}
+			.color-sample {
+				width: 1em;
+				border: 1px solid #000;
+				margin: 0 .5em;
+			}
+			.color-picker {
+				margin-left: 5px;
+			}
+			.palette {
+				margin: 1.5em 0 0 10em;
+				width: 270px;
+				background: #efefef;
+				border: 1px solid #bcbcbc;
+				border-radius: 1px;
+				display: none;
+				padding: 1px;
+				position: absolute;
+				z-index: 1000;
+			}
+			.palette div {
+				width: 18px;
+				height: 18px;
+				margin: 3px;
+				cursor:pointer;
+				display: inline-block;
 			}
 		</style>
 	</head>
@@ -74,15 +105,29 @@
 					<option value="vertical">vertical</option>
 				</select>
 			</p>
+			<div class="color-picker" data-default="#ffffff">
+				<label for="backgroundColor">Background Color</label> 
+				<input type="text" class="" id="backgroundColor" name="backgroundColor" value="#ffffff"><div class="color-sample" style="background-color:#ffffff"></div>
+			</div>
+			<div class="color-picker" data-default="#000000">
+				<label for="color">Maze Color</label> 
+				<input type="text" class="" id="color" name="color" value="#000000"><div class="color-sample" style="background-color:#000000"></div>
+			</div>
+			<div class="color-picker" data-default="#cc3737">
+				<label for="solveColor">Solve Color</label> 
+				<input type="text" class="" id="solveColor" name="solveColor" value="#cc3737" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"><div class="color-sample" style="background-color:#cc3737"></div>
+			</div>
 
 			<button onclick="initMaze();">Generate Maze</button>
 			<button id="solve" onclick="initSolve();" class='hide'>Solve Maze</button>
 		</div>
 		<canvas id="maze"></canvas>
+		<script type="text/javascript" src="src/globals.js"></script>
 		<script type="text/javascript" src="src/utils.js"></script>
 		<script type="text/javascript" src="src/entries.js"></script>
 		<script type="text/javascript" src="src/maze.js"></script>
 		<script type="text/javascript" src="src/solver.js"></script>
 		<script type="text/javascript" src="src/app.js"></script>
+		<script type="text/javascript" src="src/color-picker.js"></script>
 	</body>
 </html>
