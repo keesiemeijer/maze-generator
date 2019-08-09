@@ -12,8 +12,10 @@
 				width: 10em;
 				display: inline-block;
 			}
-			p.desc {
+			p.desc, #download {
 				font-size: smaller;
+			}
+			p.desc {
 				display: inline-block;
 			}
 			.hide {
@@ -120,6 +122,7 @@
 
 			<button onclick="initMaze();">Generate Maze</button>
 			<button id="solve" onclick="initSolve();" class='hide'>Solve Maze</button>
+			<a href="" class="hide" id="download">Download Maze</a>
 		</div>
 		<canvas id="maze"></canvas>
 		<script type="text/javascript" src="src/globals.js"></script>

@@ -33,6 +33,10 @@ if (removeWallsInput) {
 	removeWallsInput.max = maxWallsRemove;
 }
 
+const download = document.getElementById("download");
+download.addEventListener("click", downloadImage, false);
+download.setAttribute('download', 'maze.png');
+
 function initMaze() {
 	const settings = {
 		width: getInputIntVal('width', 20),
@@ -88,15 +92,25 @@ function initMaze() {
 	maze.generate();
 	maze.draw();
 
-	mazeNodes = {}
-	if (maze.matrix.length) {
-		mazeNodes = maze;
+	if (download && download.classList.contains('hide')) {
+		download.classList.toggle("hide");
 	}
 
 	const solveButton = document.getElementById("solve");
 	if (solveButton && solveButton.classList.contains('hide')) {
 		solveButton.classList.toggle("hide");
 	}
+
+	mazeNodes = {}
+	if (maze.matrix.length) {
+		mazeNodes = maze;
+	}
+}
+
+function downloadImage(e) {
+	const image = document.getElementById('maze').toDataURL("image/png");
+    image.replace("image/png", "image/octet-stream");
+	download.setAttribute("href", image);
 }
 
 function initSolve() {
