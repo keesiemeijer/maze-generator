@@ -1,16 +1,141 @@
 (function() {
-	const palette = '<div class="palette" style="display: none;"><div tabindex="0" style="background-color:#000000"></div><div tabindex="0" style="background-color:#191919"></div><div tabindex="0" style="background-color:#323232"></div><div tabindex="0" style="background-color:#4b4b4b"></div><div tabindex="0" style="background-color:#646464"></div><div tabindex="0" style="background-color:#7d7d7d"></div><div tabindex="0" style="background-color:#969696"></div><div tabindex="0" style="background-color:#afafaf"></div><div tabindex="0" style="background-color:#c8c8c8"></div><div tabindex="0" style="background-color:#e1e1e1"></div><div tabindex="0" style="background-color:#ffffff"></div><div tabindex="0" style="background-color:#820000"></div><div tabindex="0" style="background-color:#9b0000"></div><div tabindex="0" style="background-color:#b40000"></div><div tabindex="0" style="background-color:#cd0000"></div><div tabindex="0" style="background-color:#e60000"></div><div tabindex="0" style="background-color:#ff0000"></div><div tabindex="0" style="background-color:#ff1919"></div><div tabindex="0" style="background-color:#ff3232"></div><div tabindex="0" style="background-color:#ff4b4b"></div><div tabindex="0" style="background-color:#ff6464"></div><div tabindex="0" style="background-color:#ff7d7d"></div><div tabindex="0" style="background-color:#823400"></div><div tabindex="0" style="background-color:#9b3e00"></div><div tabindex="0" style="background-color:#b44800"></div><div tabindex="0" style="background-color:#cd5200"></div><div tabindex="0" style="background-color:#e65c00"></div><div tabindex="0" style="background-color:#ff6600"></div><div tabindex="0" style="background-color:#ff7519"></div><div tabindex="0" style="background-color:#ff8532"></div><div tabindex="0" style="background-color:#ff944b"></div><div tabindex="0" style="background-color:#ffa364"></div><div tabindex="0" style="background-color:#ffb27d"></div><div tabindex="0" style="background-color:#828200"></div><div tabindex="0" style="background-color:#9b9b00"></div><div tabindex="0" style="background-color:#b4b400"></div><div tabindex="0" style="background-color:#cdcd00"></div><div tabindex="0" style="background-color:#e6e600"></div><div tabindex="0" style="background-color:#ffff00"></div><div tabindex="0" style="background-color:#ffff19"></div><div tabindex="0" style="background-color:#ffff32"></div><div tabindex="0" style="background-color:#ffff4b"></div><div tabindex="0" style="background-color:#ffff64"></div><div tabindex="0" style="background-color:#ffff7d"></div><div tabindex="0" style="background-color:#003300"></div><div tabindex="0" style="background-color:#004d00"></div><div tabindex="0" style="background-color:#008000"></div><div tabindex="0" style="background-color:#00b300"></div><div tabindex="0" style="background-color:#00cc00"></div><div tabindex="0" style="background-color:#00e600"></div><div tabindex="0" style="background-color:#1aff1a"></div><div tabindex="0" style="background-color:#4dff4d"></div><div tabindex="0" style="background-color:#66ff66"></div><div tabindex="0" style="background-color:#80ff80"></div><div tabindex="0" style="background-color:#b3ffb3"></div><div tabindex="0" style="background-color:#001a4d"></div><div tabindex="0" style="background-color:#002b80"></div><div tabindex="0" style="background-color:#003cb3"></div><div tabindex="0" style="background-color:#004de6"></div><div tabindex="0" style="background-color:#0000ff"></div><div tabindex="0" style="background-color:#0055ff"></div><div tabindex="0" style="background-color:#3377ff"></div><div tabindex="0" style="background-color:#4d88ff"></div><div tabindex="0" style="background-color:#6699ff"></div><div tabindex="0" style="background-color:#80b3ff"></div><div tabindex="0" style="background-color:#b3d1ff"></div><div tabindex="0" style="background-color:#003333"></div><div tabindex="0" style="background-color:#004d4d"></div><div tabindex="0" style="background-color:#006666"></div><div tabindex="0" style="background-color:#009999"></div><div tabindex="0" style="background-color:#00cccc"></div><div tabindex="0" style="background-color:#00ffff"></div><div tabindex="0" style="background-color:#1affff"></div><div tabindex="0" style="background-color:#33ffff"></div><div tabindex="0" style="background-color:#4dffff"></div><div tabindex="0" style="background-color:#80ffff"></div><div tabindex="0" style="background-color:#b3ffff"></div><div tabindex="0" style="background-color:#4d004d"></div><div tabindex="0" style="background-color:#602060"></div><div tabindex="0" style="background-color:#660066"></div><div tabindex="0" style="background-color:#993399"></div><div tabindex="0" style="background-color:#ac39ac"></div><div tabindex="0" style="background-color:#bf40bf"></div><div tabindex="0" style="background-color:#c653c6"></div><div tabindex="0" style="background-color:#cc66cc"></div><div tabindex="0" style="background-color:#d279d2"></div><div tabindex="0" style="background-color:#d98cd9"></div><div tabindex="0" style="background-color:#df9fdf"></div><div tabindex="0" style="background-color:#660029"></div><div tabindex="0" style="background-color:#800033"></div><div tabindex="0" style="background-color:#b30047"></div><div tabindex="0" style="background-color:#cc0052"></div><div tabindex="0" style="background-color:#e6005c"></div><div tabindex="0" style="background-color:#ff0066"></div><div tabindex="0" style="background-color:#ff1a75"></div><div tabindex="0" style="background-color:#ff3385"></div><div tabindex="0" style="background-color:#ff4d94"></div><div tabindex="0" style="background-color:#ff66a3"></div><div tabindex="0" style="background-color:#ff99c2"></div></div>';
+
+	// Amount of colors in a row
+	const row = 11;
+
+	// Todo: Use object with color description for accessibility
+	var hexColors = [
+		'#000000',
+		'#191919',
+		'#323232',
+		'#4b4b4b',
+		'#646464',
+		'#7d7d7d',
+		'#969696',
+		'#afafaf',
+		'#c8c8c8',
+		'#e1e1e1',
+		'#ffffff',
+		'#820000',
+		'#9b0000',
+		'#b40000',
+		'#cd0000',
+		'#e60000',
+		'#ff0000',
+		'#ff1919',
+		'#ff3232',
+		'#ff4b4b',
+		'#ff6464',
+		'#ff7d7d',
+		'#823400',
+		'#9b3e00',
+		'#b44800',
+		'#cd5200',
+		'#e65c00',
+		'#ff6600',
+		'#ff7519',
+		'#ff8532',
+		'#ff944b',
+		'#ffa364',
+		'#ffb27d',
+		'#828200',
+		'#9b9b00',
+		'#b4b400',
+		'#cdcd00',
+		'#e6e600',
+		'#ffff00',
+		'#ffff19',
+		'#ffff32',
+		'#ffff4b',
+		'#ffff64',
+		'#ffff7d',
+		'#003300',
+		'#004d00',
+		'#008000',
+		'#00b300',
+		'#00cc00',
+		'#00e600',
+		'#1aff1a',
+		'#4dff4d',
+		'#66ff66',
+		'#80ff80',
+		'#b3ffb3',
+		'#001a4d',
+		'#002b80',
+		'#003cb3',
+		'#004de6',
+		'#0000ff',
+		'#0055ff',
+		'#3377ff',
+		'#4d88ff',
+		'#6699ff',
+		'#80b3ff',
+		'#b3d1ff',
+		'#003333',
+		'#004d4d',
+		'#006666',
+		'#009999',
+		'#00cccc',
+		'#00ffff',
+		'#1affff',
+		'#33ffff',
+		'#4dffff',
+		'#80ffff',
+		'#b3ffff',
+		'#4d004d',
+		'#602060',
+		'#660066',
+		'#993399',
+		'#ac39ac',
+		'#bf40bf',
+		'#c653c6',
+		'#cc66cc',
+		'#d279d2',
+		'#d98cd9',
+		'#df9fdf',
+		'#660029',
+		'#800033',
+		'#b30047',
+		'#cc0052',
+		'#e6005c',
+		'#ff0066',
+		'#ff1a75',
+		'#ff3385',
+		'#ff4d94',
+		'#ff66a3',
+		'#ff99c2',
+	];
+
 	const colorPickers = document.querySelectorAll('.color-picker');
-	backgroudDefault = "#ffffff" // empty string is transparent background
-	mazeSolveColor = "#cc3737"
-	mazeColor = "#000000"
+	const palette = '<div class="palette" style="display: none;"></div>';
 	let paletteHasFocus = false;
+	let desc = "Use a hex color code or use the tab key to select a color.";
+	desc += ' Use the arrow keys to scroll through all colors. Use the space or return key to select the color.'
 
 	for (let i = 0; i < colorPickers.length; i++) {
+
+		// Create aria describedby element for the color input
+		var describedby = document.createElement("p");
+		describedby.style.display = 'none';
+		describedby.id = 'desc-' + i;
+		describedby.innerHTML = desc;
+
+		// Insert describedby description
+		colorPickers[i].insertAdjacentElement('afterbegin', describedby)
+
 		const colorInput = colorPickers[i].querySelector('input');
+
+		// Show color palette on input focus
 		colorInput.addEventListener("focus", showColorPalette, false);
-		colorInput.addEventListener("keydown", keyup, false);
+
+		// Check if tab key is used to focus a color in the palette
+		colorInput.addEventListener("keydown", inputTabPressed, false);
+
+		// Update color sample after key up
 		colorInput.addEventListener("keyup", updateColorSample, false);
+
+		// Add describedby attribute
+		colorInput.setAttribute("aria-describedby", 'desc-' + i);
 
 		// Insert color palette
 		colorPickers[i].insertAdjacentHTML('beforeend', palette);
@@ -18,10 +143,35 @@
 		// Get inserted palette
 		const colorPalette = colorPickers[i].querySelector('.palette');
 
-		const colors = colorPalette.querySelectorAll('div');
-		for (let j = 0; j < colors.length; j++) {
-			// For tabbed focus
-			colors[j].addEventListener("blur", colorBlur);
+		for (let j = 0; j < hexColors.length; j++) {
+			var colorDiv = document.createElement("div");
+			var colorDivText = document.createElement("span");
+			colorDivText.className = 'screen-reader-text';
+			colorDivText.innerHTML = hexColors[j];
+			colorDiv.appendChild(colorDivText);
+
+			// Make color divs tabbable.
+			colorDiv.tabIndex = 0;
+			colorDiv.style = 'background-color: ' + hexColors[j] + ';';
+			colorDiv.setAttribute("role", "button");
+			colorDiv.setAttribute('data-index', j + 1);
+			colorPalette.appendChild(colorDiv);
+
+
+			// Get RGB color from background
+			let rgbColor = colorDiv.style.backgroundColor;
+
+			// Get human readable colorname
+			let labelColor = getHumanReadableColor(rgbColor, hexColors[j]);
+			if (labelColor.length) {
+				colorDiv.setAttribute("aria-label", labelColor);
+			}
+
+			// Check if a color is the new focused element
+			colorDiv.addEventListener("blur", colorBlur);
+
+			// Navigate colors in palette
+			colorDiv.addEventListener("keyup", colorNavigation, false);
 		}
 
 		colorPalette.onmouseenter = function() {
@@ -31,31 +181,44 @@
 			paletteHasFocus = false;
 		}
 
-		// Close palette if clicked (also if clicked on color)
+		// Close palette if palette or color is clicked
 		colorPalette.addEventListener("click", paletteClick, false);
+
+		// Hide colorpalette if paletteHasFocus is false
 		colorInput.addEventListener("focusout", hideColorPalette);
 	}
 
 	let colorSample = document.querySelectorAll('.color-sample')
 	for (let i = 0; i < colorSample.length; i++) {
+		// Set initial color same as default (should already be set in HTML)
+		let colorPickerDefault = colorSample[i].parentNode.dataset.default;
+		colorSample[i].style = 'background-color: ' + colorPickerDefault + ';';
+
+		// Get RGB color from background
+		let rgbColor = colorSample[i].style.backgroundColor;
+
+		// Add span for human readable text
+		let labelColorSpan = document.createElement("span");
+		labelColorSpan.className = 'screen-reader-text';
+		colorSample[i].appendChild(labelColorSpan);
+		updateColorSampleText(colorSample[i], colorPickerDefault);
+
+		// Display palette if sample is clicked
 		colorSample[i].addEventListener("click", showColorPalette, false);
 	}
 
-	function keyup(e) {
-		if (9 === e.which) {
-			paletteHasFocus = true;
-		}
-	}
-
 	function colorBlur(e) {
+		// Check what element has focus
 		if (e.relatedTarget === null) {
+			// No element has focus
 			this.parentNode.style.display = 'none';
 			paletteHasFocus = false;
 
 		} else {
 			if ('palette' !== e.relatedTarget.parentNode.className) {
-				paletteHasFocus = false;
+				// No element in the palette has focus
 				this.parentNode.style.display = 'none';
+				paletteHasFocus = false;
 			}
 		}
 	}
@@ -76,19 +239,104 @@
 
 	function paletteClick(e) {
 		if ('palette' !== e.target.className) {
-			let color = rgbToHex(e.target.style.backgroundColor);
+			// Get the clicked color
+			let hexColor = rgbToHex(e.target.style.backgroundColor);
 
-			this.parentNode.querySelector('input').value = color;
-			this.parentNode.querySelector('.color-sample').style = 'background-color: ' + color + ';';
+			this.parentNode.querySelector('input').value = hexColor;
+			let colorSample = this.parentNode.querySelector('.color-sample');
+
+			colorSample.style = 'background-color: ' + hexColor + ';';
+			updateColorSampleText(colorSample, hexColor)
+
 		}
+		// Hide palette
 		this.style.display = 'none';
+		paletteHasFocus = false;
+	}
+
+	function colorNavigation(e) {
+		// Select color with space or enter
+		if (13 === e.which || 32 === e.which) {
+			let hexColor = rgbToHex(this.style.backgroundColor);
+
+			this.parentNode.parentNode.querySelector('input').value = hexColor;
+			let colorSample = this.parentNode.parentNode.querySelector('.color-sample');
+			colorSample.style = 'background-color: ' + hexColor + ';';
+			updateColorSampleText(colorSample, hexColor)
+
+			this.parentNode.style.display = 'none';
+			paletteHasFocus = false;
+			return;
+		}
+
+		let index = 0;
+
+		// Palette navigation with arrow keys
+		if (40 === e.which) {
+			// down arrow
+			index = parseInt(this.dataset.index, 10) + row;
+		} else if (38 === e.which) {
+			// up arrow
+			index = parseInt(this.dataset.index, 10) - row;
+		} else if (37 === e.which) {
+			// left arrow
+			index = parseInt(this.dataset.index, 10) - 1;
+		} else if (39 === e.which) {
+			// right arrow
+			index = parseInt(this.dataset.index, 10) + 1;
+		} else {
+			// Not a navigation key
+			return;
+		}
+
+		if (0 >= index || hexColors.length < index) {
+			return;
+		}
+
+		let next = this.parentNode.querySelector('[data-index="' + index + '"]');
+		if (next) {
+			next.focus();
+		}
+	}
+
+	function inputTabPressed(e) {
+		// Tab key to go to the first color in the palette
+		if (9 === e.which) {
+			// Palette has focus if a color has focus
+			paletteHasFocus = true;
+		}
 	}
 
 	function updateColorSample(e) {
+		// Update colorsample if it's a valid color
 		if (isValidHex(this.value)) {
 			let colorSample = this.parentNode.querySelector('.color-sample');
 			colorSample.style = 'background-color: ' + this.value + ';';
+			updateColorSampleText(colorSample, this.value);
 		}
+	}
+
+	function updateColorSampleText(el, hexColor) {
+		let span = el.querySelector('span');
+		let rgbColor = el.style.backgroundColor;
+
+		let readableColor = getHumanReadableColor(rgbColor, hexColor);
+		if (readableColor.length) {
+			span.innerHTML = readableColor;
+		}
+	}
+
+	function getHumanReadableColor(rgbColor, hexColor ) {
+		if (typeof HumanColours === "undefined") {
+			return hexColor;
+		}
+
+		let arr = rgbColor.replace('rgb', '').replace('(', '').replace(')', '').split(',');
+		let hslColor = rgbToHsl(arr[0], arr[1], arr[2]);
+		hslColor = 'hsl(' + hslColor.join(',') + ')';
+		let readable = new HumanColours(hslColor);
+
+		return 'Color ' + readable.hueName() + ', ' + readable.saturationName() + ', ' + readable.lightnessName();
 	}
 
 	function isValidHex(hex) {
@@ -103,5 +351,36 @@
 	function rgbToHex(color) {
 		arr = color.replace('rgb', '').replace('(', '').replace(')', '').split(',');
 		return "#" + componentToHex(Number(arr[0])) + componentToHex(Number(arr[1])) + componentToHex(Number(arr[2]));
+	}
+
+	function rgbToHsl(r, g, b) {
+		r /= 255, g /= 255, b /= 255;
+
+		var max = Math.max(r, g, b),
+			min = Math.min(r, g, b);
+		var h, s, l = (max + min) / 2;
+
+		if (max == min) {
+			h = s = 0; // achromatic
+		} else {
+			var d = max - min;
+			s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+			switch (max) {
+				case r:
+					h = (g - b) / d + (g < b ? 6 : 0);
+					break;
+				case g:
+					h = (b - r) / d + 2;
+					break;
+				case b:
+					h = (r - g) / d + 4;
+					break;
+			}
+
+			h /= 6;
+		}
+
+		return [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)];
 	}
 })();

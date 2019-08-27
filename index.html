@@ -59,6 +59,22 @@
 				cursor:pointer;
 				display: inline-block;
 			}
+			.palette div:focus {
+				outline-width: 2px
+			}
+			.screen-reader-text {
+				border: 0;
+				clip: rect(1px, 1px, 1px, 1px);
+				-webkit-clip-path: inset(50%);
+				clip-path: inset(50%);
+				height: 1px;
+				margin: -1px;
+				overflow: hidden;
+				padding: 0;
+				position: absolute;
+				width: 1px;
+				word-wrap: normal !important; /* many screen reader and browser combinations announce broken words as they would appear visually */
+			}
 		</style>
 	</head>
 	<body>
@@ -131,6 +147,7 @@
 		<script type="text/javascript" src="src/maze.js"></script>
 		<script type="text/javascript" src="src/solver.js"></script>
 		<script type="text/javascript" src="src/app.js"></script>
+		<script type="text/javascript" src="src/human-colours-en-gb.js"></script>
 		<script type="text/javascript" src="src/color-picker.js"></script>
 	</body>
 </html>
