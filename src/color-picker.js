@@ -3,6 +3,12 @@
 	// Amount of colors in a row
 	const row = 11;
 
+	// Classes
+	const colorPickerClass = 'color-picker';
+	const colorSampleClass = 'color-sample';
+	const paletteClass = 'palette';
+	const screenReaderClass = 'screen-reader-text';
+
 	// Todo: Use object with color description for accessibility
 	var hexColors = [
 		'#000000',
@@ -106,11 +112,12 @@
 		'#ff99c2',
 	];
 
-	const colorPickers = document.querySelectorAll('.color-picker');
-	const palette = '<div class="palette" style="display: none;"></div>';
+	const colorPickers = document.querySelectorAll('.' + colorPickerClass);
+	const palette = '<div class="' + paletteClass + '" style="display: none;"></div>';
 	let paletteHasFocus = false;
 	let desc = "Use a hex color code or use the tab key to select a color.";
-	desc += ' Use the arrow keys to scroll through all colors. Use the space or return key to select the color.'
+	desc += ' Use the arrow keys to scroll through all colors. Use the space or return key to select the color.';
+	desc += ' Use the escape key to close the palette.'
 
 	for (let i = 0; i < colorPickers.length; i++) {
 
@@ -141,12 +148,12 @@
 		colorPickers[i].insertAdjacentHTML('beforeend', palette);
 
 		// Get inserted palette
-		const colorPalette = colorPickers[i].querySelector('.palette');
+		const colorPalette = colorPickers[i].querySelector('.' + paletteClass);
 
 		for (let j = 0; j < hexColors.length; j++) {
 			var colorDiv = document.createElement("div");
 			var colorDivText = document.createElement("span");
-			colorDivText.className = 'screen-reader-text';
+			colorDivText.className = screenReaderClass;
 			colorDivText.innerHTML = hexColors[j];
 			colorDiv.appendChild(colorDivText);
 
@@ -162,9 +169,9 @@
 			let rgbColor = colorDiv.style.backgroundColor;
 
 			// Get human readable colorname
-			let labelColor = getHumanReadableColor(rgbColor, hexColors[j]);
-			if (labelColor.length) {
-				colorDiv.setAttribute("aria-label", labelColor);
+			let colorLabel = getHumanReadableColor(rgbColor, hexColors[j]);
+			if (colorLabel.length) {
+				colorDiv.setAttribute("aria-label", colorLabel);
 			}
 
 			// Check if a color is the new focused element
@@ -188,20 +195,22 @@
 		colorInput.addEventListener("focusout", hideColorPalette);
 	}
 
-	let colorSample = document.querySelectorAll('.color-sample')
+	let colorSample = document.querySelectorAll('.' + colorSampleClass)
 	for (let i = 0; i < colorSample.length; i++) {
 		// Set initial color same as default (should already be set in HTML)
-		let colorPickerDefault = colorSample[i].parentNode.dataset.default;
-		colorSample[i].style = 'background-color: ' + colorPickerDefault + ';';
+		let defaultColor = colorSample[i].parentNode.dataset.default;
+		colorSample[i].style = 'background-color: ' + defaultColor + ';';
 
 		// Get RGB color from background
 		let rgbColor = colorSample[i].style.backgroundColor;
 
 		// Add span for human readable text
-		let labelColorSpan = document.createElement("span");
-		labelColorSpan.className = 'screen-reader-text';
-		colorSample[i].appendChild(labelColorSpan);
-		updateColorSampleText(colorSample[i], colorPickerDefault);
+		let colorSampleText = document.createElement("span");
+		colorSampleText.className = screenReaderClass;
+		colorSample[i].appendChild(colorSampleText);
+
+		// Update human readable text
+		updateColorSampleText(colorSample[i], defaultColor);
 
 		// Display palette if sample is clicked
 		colorSample[i].addEventListener("click", showColorPalette, false);
@@ -215,7 +224,7 @@
 			paletteHasFocus = false;
 
 		} else {
-			if ('palette' !== e.relatedTarget.parentNode.className) {
+			if (paletteClass !== e.relatedTarget.parentNode.className) {
 				// No element in the palette has focus
 				this.parentNode.style.display = 'none';
 				paletteHasFocus = false;
@@ -226,24 +235,24 @@
 	function showColorPalette(e) {
 		this.parentNode.querySelector('input').focus();
 
-		let palette = this.parentNode.querySelector('.palette');
+		let palette = this.parentNode.querySelector('.' + paletteClass);
 		palette.style.display = 'block';
 	}
 
 	function hideColorPalette(e) {
-		let colorPalette = this.parentNode.querySelector('.palette');
+		let colorPalette = this.parentNode.querySelector('.' + paletteClass);
 		if (paletteHasFocus === false) {
 			colorPalette.style.display = 'none';
 		}
 	}
 
 	function paletteClick(e) {
-		if ('palette' !== e.target.className) {
+		if (paletteClass !== e.target.className) {
 			// Get the clicked color
 			let hexColor = rgbToHex(e.target.style.backgroundColor);
 
 			this.parentNode.querySelector('input').value = hexColor;
-			let colorSample = this.parentNode.querySelector('.color-sample');
+			let colorSample = this.parentNode.querySelector('.' + colorSampleClass);
 
 			colorSample.style = 'background-color: ' + hexColor + ';';
 			updateColorSampleText(colorSample, hexColor)
@@ -260,10 +269,16 @@
 			let hexColor = rgbToHex(this.style.backgroundColor);
 
 			this.parentNode.parentNode.querySelector('input').value = hexColor;
-			let colorSample = this.parentNode.parentNode.querySelector('.color-sample');
+			let colorSample = this.parentNode.parentNode.querySelector('.' + colorSampleClass);
 			colorSample.style = 'background-color: ' + hexColor + ';';
 			updateColorSampleText(colorSample, hexColor)
 
+			this.parentNode.style.display = 'none';
+			paletteHasFocus = false;
+			return;
+		}
+
+		if(27 === e.which) {
 			this.parentNode.style.display = 'none';
 			paletteHasFocus = false;
 			return;
@@ -310,7 +325,7 @@
 	function updateColorSample(e) {
 		// Update colorsample if it's a valid color
 		if (isValidHex(this.value)) {
-			let colorSample = this.parentNode.querySelector('.color-sample');
+			let colorSample = this.parentNode.querySelector('.' + colorSampleClass);
 			colorSample.style = 'background-color: ' + this.value + ';';
 			updateColorSampleText(colorSample, this.value);
 		}
@@ -326,7 +341,7 @@
 		}
 	}
 
-	function getHumanReadableColor(rgbColor, hexColor ) {
+	function getHumanReadableColor(rgbColor, hexColor) {
 		if (typeof HumanColours === "undefined") {
 			return hexColor;
 		}
