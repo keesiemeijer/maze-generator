@@ -76,6 +76,32 @@
 				width: 1px;
 				word-wrap: normal !important; /* many screen reader and browser combinations announce broken words as they would appear visually */
 			}
+
+			noscript p {
+				border: 1px solid red;
+				padding: 1em;
+			}
+
+			#generate {
+				border-top: 1px solid #afafaf;
+				padding-top: 1em;
+			}
+
+			button {
+				font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+				padding:5px 1em;
+				margin-right: .5em;
+				font-size: .9em;
+				background:#3377ff;
+				color: #fff;
+				border:0 none;
+				cursor:pointer;
+				-webkit-border-radius: 3px;
+				border-radius: 5px;
+			}
+			button:hover {
+				background:#0055ff;
+			}
 		</style>
 	</head>
 	<body>
@@ -136,11 +162,19 @@
 				<label for="solveColor">Solve Color</label> 
 				<input type="text" class="" id="solveColor" name="solveColor" value="#cc3737" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"><div class="color-sample" style="background-color:#cc3737"></div>
 			</div>
-
-			<button onclick="initMaze();">Generate Maze</button>
-			<button id="solve" onclick="initSolve();" class='hide'>Solve Maze</button>
-			<a href="" class="hide" id="download">Download Maze</a>
+			<div id="generate">
+				<button id="create-maze" onclick="initMaze();" class='hide'>Generate Maze</button>
+				<button id="solve" onclick="initSolve();" class='hide'>Solve Maze</button>
+				<a href="" class="hide" id="download">Download Maze</a>
+			</div>
 		</div>
+		<noscript>
+			<p>Sorry... this site requires JavaScript to generate a maze. Please enable it in your browser</p>
+		</noscript>
+		<script type="text/javascript">
+			const createMazeButton = document.getElementById('create-maze');
+			createMazeButton.classList.toggle("hide")
+		</script>
 		<canvas id="maze"></canvas>
 		<script type="text/javascript" src="src/globals.js"></script>
 		<script type="text/javascript" src="src/utils.js"></script>

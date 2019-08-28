@@ -120,7 +120,6 @@
 	desc += ' Use the escape key to close the palette.'
 
 	for (let i = 0; i < colorPickers.length; i++) {
-
 		// Create aria describedby element for the color input
 		var describedby = document.createElement("p");
 		describedby.style.display = 'none';
