@@ -231,13 +231,13 @@ Maze.prototype.getEntryNodes = function(access) {
 	if ('horizontal' === access || 'vertical' === access) {
 		let xy = ('horizontal' === access) ? y : x;
 		xy = ((xy - 1) / 2);
-		let odd = (xy % 2);
-		xy = odd ? xy : xy + 1;
+		let even = (xy % 2 === 0);
+		xy = even ? xy + 1 : xy;
 
 		let start_x = ('horizontal' === access) ? 1 : xy;
 		let start_y = ('horizontal' === access) ? xy : 1;
-		let end_x = ('horizontal' === access) ? x : (odd ? start_x + 2 : start_x);
-		let end_y = ('horizontal' === access) ? (odd ? start_y + 2 : start_y) : y;
+		let end_x = ('horizontal' === access) ? x : (even ? start_x : start_x + 2);
+		let end_y = ('horizontal' === access) ? (even ? start_y : start_y + 2) : y;
 		let startgate = ('horizontal' === access) ? { 'x': 0, 'y': start_y } : { 'x': start_x, 'y': 0 };
 		let endgate = ('horizontal' === access) ? { 'x': x + 1, 'y': end_y } : { 'x': end_x, 'y': y + 1 };
 
@@ -275,59 +275,60 @@ Maze.prototype.getNeighbours = function(pos) {
 	};
 }
 
-Maze.prototype.removeWall = function(y, i) {
-	// Break wall if possible.
-	const even = (y % 2 === 0)
-	const wall = stringVal(this.matrix[y], i);
+Maze.prototype.removeWall = function(row, index) {
+	// Remove wall if possible.
+	const evenRow = (row % 2 === 0);
+	const evenIndex = (index % 2 === 0);
+	const wall = stringVal(this.matrix[row], index);
 
 	if (!wall) {
 		return false;
 	}
 
-	if (!even && (i % 2 === 0)) {
+	if (!evenRow && evenIndex) {
 		// Uneven row and even column
-		const hasTop = (y - 2 > 0) && (1 === stringVal(this.matrix[y - 2], i));
-		const hasBottom = (y + 2 < this.matrix.length) && (1 === stringVal(this.matrix[y + 2], i));
+		const hasTop = (row - 2 > 0) && (1 === stringVal(this.matrix[row - 2], index));
+		const hasBottom = (row + 2 < this.matrix.length) && (1 === stringVal(this.matrix[row + 2], index));
 
 		if (hasTop && hasBottom) {
-			this.matrix[y] = replaceAt(this.matrix[y], i, '0');
+			this.matrix[row] = replaceAt(this.matrix[row], index, '0');
 			return true;
 		} else if (!hasTop && hasBottom) {
-			const left = 1 === stringVal(this.matrix[y - 1], i - 1);
-			const right = 1 === stringVal(this.matrix[y - 1], i + 1);
+			const left = 1 === stringVal(this.matrix[row - 1], index - 1);
+			const right = 1 === stringVal(this.matrix[row - 1], index + 1);
 			if (left || right) {
-				this.matrix[y] = replaceAt(this.matrix[y], i, '0');
+				this.matrix[row] = replaceAt(this.matrix[row], index, '0');
 				return true;
 			}
 		} else if (!hasBottom && hasTop) {
-			const left = 1 === stringVal(this.matrix[y + 1], i - 1);
-			const right = 1 === stringVal(this.matrix[y + 1], i + 1);
+			const left = 1 === stringVal(this.matrix[row + 1], index - 1);
+			const right = 1 === stringVal(this.matrix[row + 1], index + 1);
 			if (left || right) {
-				this.matrix[y] = replaceAt(this.matrix[y], i, '0');
+				this.matrix[row] = replaceAt(this.matrix[row], index, '0');
 				return true;
 			}
 		}
 
-	} else if (even && (i % 2 !== 0)) {
+	} else if (evenRow && !evenIndex) {
 		// Even row and uneven column
-		const hasLeft = 1 === stringVal(this.matrix[y], i - 2);
-		const hasRight = 1 === stringVal(this.matrix[y], i + 2);
+		const hasLeft = 1 === stringVal(this.matrix[row], index - 2);
+		const hasRight = 1 === stringVal(this.matrix[row], index + 2);
 
 		if (hasLeft && hasRight) {
-			this.matrix[y] = replaceAt(this.matrix[y], i, '0');
+			this.matrix[row] = replaceAt(this.matrix[row], index, '0');
 			return true;
 		} else if (!hasLeft && hasRight) {
-			const top = 1 === stringVal(this.matrix[y - 1], i - 1);
-			const bottom = 1 === stringVal(this.matrix[y + 1], i - 1);
+			const top = 1 === stringVal(this.matrix[row - 1], index - 1);
+			const bottom = 1 === stringVal(this.matrix[row + 1], index - 1);
 			if (top || bottom) {
-				this.matrix[y] = replaceAt(this.matrix[y], i, '0');
+				this.matrix[row] = replaceAt(this.matrix[row], index, '0');
 				return true;
 			}
 		} else if (!hasRight && hasLeft) {
-			const top = 1 === stringVal(this.matrix[y - 1], i + 1);
-			const bottom = 1 === stringVal(this.matrix[y + 1], i + 1);
+			const top = 1 === stringVal(this.matrix[row - 1], index + 1);
+			const bottom = 1 === stringVal(this.matrix[row + 1], index + 1);
 			if (top || bottom) {
-				this.matrix[y] = replaceAt(this.matrix[y], i, '0');
+				this.matrix[row] = replaceAt(this.matrix[row], index, '0');
 				return true;
 			}
 		}
