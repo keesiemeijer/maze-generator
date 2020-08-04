@@ -10,8 +10,13 @@ function Solver(maze) {
 Solver.prototype.solve = function() {
 	const startPosition = getEntryNode(this.maze.entryNodes, 'start');
 	const endPosition = getEntryNode(this.maze.entryNodes, 'end');
-	const nodes = this.generateSolveNodes(startPosition, endPosition);
-	const connected = this.connectSolveNodes(nodes);
+
+	// Get nodes (from the maze matrix) that have connections to other nodes.
+	const nodes = this.getMazeSolveNodes(startPosition, endPosition);
+
+	// Get the connections for every solve node.
+	const connected = this.connectMazeSolveNodes(nodes);
+
 	if (this.maze.wallsRemoved) {
 		this.path = this.walkMazeAstar(connected);
 	} else {
@@ -19,12 +24,11 @@ Solver.prototype.solve = function() {
 	}
 }
 
-Solver.prototype.generateSolveNodes = function(start, end) {
+Solver.prototype.getMazeSolveNodes = function(start, end) {
 	const matrix = this.maze.matrix;
 	const nodes = [];
-	const f = 0;
-	const g = 0;
-	const h = 0;
+
+	// Property used (by both solvers) to find and draw the path to the exit
 	const previous = undefined;
 
 	const rowCount = matrix.length;
@@ -50,20 +54,16 @@ Solver.prototype.generateSolveNodes = function(start, end) {
 				'e': (rowLength > x) && stringVal(matrix[y], (x + 1))
 			}
 
-			let count = 4 - (Object.keys(nswe)
-				.map(key => !nswe[key] ? 0 : 1)
-				.reduce((a, b) => a + b, 0));
-
 			if (start && end) {
 				if ((x === start.x) && (y === start.y)) {
 					this.start = nodes.length;
-					nodes.push({ x, y, nswe, count, f, g, h, previous });
+					nodes.push({ x, y, nswe, previous });
 					continue;
 				}
 
 				if ((x === end.x) && (y === end.y)) {
 					this.finish = nodes.length;
-					nodes.push({ x, y, nswe, count, f, g, h, previous });
+					nodes.push({ x, y, nswe, previous });
 					continue;
 				}
 			}
@@ -72,25 +72,25 @@ Solver.prototype.generateSolveNodes = function(start, end) {
 			if (nswe['w'] || nswe['e']) {
 				// left or right direction possible
 				if (!nswe['w'] || !nswe['e']) {
-					nodes.push({ x, y, nswe, count, f, g, h, previous });
+					nodes.push({ x, y, nswe, previous });
 					continue;
 
 				} else {
 					// Up or down direction possible.
 					if ((!nswe['n'] && nswe['s']) || (nswe['n'] && !nswe['s'])) {
-						nodes.push({ x, y, nswe, count, f, g, h, previous });
+						nodes.push({ x, y, nswe, previous });
 						continue;
 					}
 				}
 			} else {
 				// All directions possible
 				if (!nswe['n'] && !nswe['s'] && !nswe['w'] && !nswe['e']) {
-					nodes.push({ x, y, nswe, count, f, g, h, previous });
+					nodes.push({ x, y, nswe, previous });
 					continue;
 				} else {
 					// Up or down direction possible.
 					if ((!nswe['n'] && nswe['s']) || (nswe['n'] && !nswe['s'])) {
-						nodes.push({ x, y, nswe, count, f, g, h, previous });
+						nodes.push({ x, y, nswe, previous });
 						continue;
 					}
 				}
@@ -101,7 +101,7 @@ Solver.prototype.generateSolveNodes = function(start, end) {
 	return nodes;
 }
 
-Solver.prototype.connectSolveNodes = function(nodes) {
+Solver.prototype.connectMazeSolveNodes = function(nodes) {
 	// Connect nodes to their neighbours.
 	const y_nodes = {};
 	const nodes_length = nodes.length;
@@ -131,6 +131,11 @@ Solver.prototype.connectSolveNodes = function(nodes) {
 		if (!nodes[i]['nswe']['s']) {
 			y_nodes[x] = i;
 		}
+
+		if (this.maze.wallsRemoved) {
+			// Not needed for A star solve
+			delete nodes[i]['nswe'];
+		}
 	}
 
 	return nodes;
@@ -156,6 +161,13 @@ Solver.prototype.walkMazeAstar = function(nodes) {
 		startNode = this.start;
 		endNode = this.finish;
 	}
+
+	// Add defaults to all nodes before we walk the maze.
+	nodes.forEach( e => {
+		e['f'] = 0;
+		e['g'] = 0;
+		e['h'] = 0;
+	});
 
 	openSet.push(startNode);
 
@@ -278,6 +290,10 @@ Solver.prototype.walkMaze = function(nodes) {
 			break
 		}
 
+		node['count'] = 4 - (Object.keys(node['nswe'])
+				.map(key => !node['nswe'][key] ? 0 : 1)
+				.reduce((a, b) => a + b, 0));
+
 		if (node.count > 2) {
 			if (-1 === multi_nodes.indexOf(i)) {
 				multi_nodes.push(i);
@@ -318,7 +334,7 @@ Solver.prototype.walkMaze = function(nodes) {
 			node.count--;
 			from = opposite[direction];
 			node['nswe'][direction] = 1;
-			node['last_step'] = direction;
+			node['previous'] = direction;
 			nodes[i] = node;
 		}
 
@@ -461,24 +477,24 @@ Solver.prototype.draw = function() {
 			break
 		}
 
-		if (node.last_step === "undefined" || node.connected === "undefined") {
+		if (node.previous === "undefined" || node.connected === "undefined") {
 			// Error: Last step or connected nodes doesn't exist.
 			break;
 		}
 
-		if (!node.connected.hasOwnProperty(node.last_step)) {
+		if (!node.connected.hasOwnProperty(node.previous)) {
 			// Error: Connected direction doesnt exist.
 			break;
 		}
 
-		i = node.connected[node.last_step];
+		i = node.connected[node.previous];
 		let connected_node = nodes[i];
 
-		if (-1 !== ['w', 'e'].indexOf(node.last_step)) {
+		if (-1 !== ['w', 'e'].indexOf(node.previous)) {
 			let start = node.x
 			let to_x = ((connected_node.x - start) * wallSize) + wallSize;
 
-			if ('w' === node.last_step) {
+			if ('w' === node.previous) {
 				start = connected_node.x
 				to_x = ((node.x - connected_node.x) * wallSize) + wallSize;
 			}
@@ -486,11 +502,11 @@ Solver.prototype.draw = function() {
 			ctx.fillRect((start * wallSize), (node.y * wallSize), to_x, wallSize);
 		}
 
-		if (-1 !== ['n', 's'].indexOf(node.last_step)) {
+		if (-1 !== ['n', 's'].indexOf(node.previous)) {
 			let start = node.y;
 			let to_y = ((connected_node.y - start) * wallSize) + wallSize;
 
-			if ('n' === node.last_step) {
+			if ('n' === node.previous) {
 				start = connected_node.y
 				to_y = ((node.y - connected_node.y) * wallSize) + wallSize;
 			}

@@ -3,6 +3,7 @@ function isValidHex(hex) {
 }
 
 function replaceAt(str, index, replacement) {
+	// Replace a character at index in a string
 	if (index > str.length - 1) {
 		return str;
 	}
@@ -10,6 +11,7 @@ function replaceAt(str, index, replacement) {
 }
 
 function stringVal(str, index) {
+	// Get the number value at a specific index in a string (0 or 1)
 	return parseInt(str.charAt(index), 10);
 }
 
