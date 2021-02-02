@@ -16,7 +16,9 @@
 				font-size: smaller;
 			}
 			p.desc {
-				display: inline-block;
+				border-top: 1px solid #afafaf;
+				padding-top: 1em;
+
 			}
 			.hide {
 				display: none;
@@ -106,8 +108,12 @@
 	</head>
 	<body>
 		<h1>Maze Generator</h1>
-		<p>Create mazes using the <a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_backtracker">recursive backtracking algorithm</a>.
-		<p><a href="https://github.com/keesiemeijer/maze-generator">Github Repository</a></p>
+		<p>
+			Create, solve and download random maze puzzles in any size or color with this online tool. Enter the values for your maze design below and click the "Generate Maze" button.</p>
+		<p>
+			The <a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_backtracker">recursive backtracking algorithm</a> is used to create the mazes.
+			For more information check out the <a href="https://github.com/keesiemeijer/maze-generator">Github Repository</a>.
+		</p>
 		<hr>
 		<div class="controls">
 			<p>
@@ -124,15 +130,6 @@
 				<label for="height">Rows:</label>
 				<input id="height" type="number" name="height" value="20" min="3" max="200">
 			</p>
-			<p style='padding-bottom: 0; margin-bottom: 0;'>
-				<label for="remove_walls">Remove maze walls:</label>
-				<input id="remove_walls" type="number" name="remove_walls" value="0" min="0" max="200">
-			</p>
-			<p class='desc'>
-				The maze can be solved in multiple ways if you remove walls. (maximum <span>300</span> walls)<br/>
-				The <a href='https://en.wikipedia.org/wiki/A*_search_algorithm'>A* search algorithm</a> is used to find the shortest path. This takes more time solving the maze.
-			</p>
-
 			<p>
 				<label for="entry">Maze entries:</label>
 				<select id="entry" name="entry">
@@ -150,6 +147,17 @@
 					<option value="vertical">vertical</option>
 				</select>
 			</p>
+			<p class='desc'>
+				The maze can be solved in multiple ways if you remove maze walls. (maximum <span>300</span> walls)<br/>
+				The <a href='https://en.wikipedia.org/wiki/A*_search_algorithm'>A* search algorithm</a> is used to find the shortest path. This takes more time solving the maze.
+			</p>
+			<p style='padding-bottom: 0; margin-bottom: 0;'>
+				<label for="remove_walls">Remove maze walls:</label>
+				<input id="remove_walls" type="number" name="remove_walls" value="0" min="0" max="200">
+			</p>
+			<p class='desc'>
+				Click the colors below to select a color from a color pallete.
+			</p>
 			<div class="color-picker" data-default="#ffffff">
 				<label for="backgroundColor">Background Color</label> 
 				<input type="text" class="" id="backgroundColor" name="backgroundColor" value="#ffffff"><div class="color-sample" style="background-color:#ffffff"></div>
@@ -165,7 +173,7 @@
 			<div id="generate">
 				<button id="create-maze" onclick="initMaze();" class='hide'>Generate Maze</button>
 				<button id="solve" onclick="initSolve();" class='hide'>Solve Maze</button>
-				<a href="" class="hide" id="download">Download Maze</a>
+				<a href="" class="hide" id="download">download maze</a>
 			</div>
 		</div>
 		<noscript>
