@@ -5,7 +5,7 @@ Check out the [maze generator demo](https://keesiemeijer.github.io/maze-generato
 
 **Note**: There are restrictions for the maze dimensions you can use. You can remove the restrictions in the [globals.js](https://github.com/keesiemeijer/maze-generator/blob/master/src/globals.js) file. Be aware that the larger the maze dimensions, the more memory is consumed. With recursive backtracking the whole maze is stored in memory.
 
-![maze](https://user-images.githubusercontent.com/1436618/31435714-dc56ce68-ae80-11e7-9978-b9ebc0b49967.png)
+![maze](https://user-images.githubusercontent.com/1436618/106612888-e1d90600-6569-11eb-87cf-2477b2578598.png)
 
 ### LICENSE
 
