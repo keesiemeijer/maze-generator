@@ -49,7 +49,7 @@ function initMaze() {
         entryType: '',
         bias: '',
         color: '#000000',
-        backgroudColor: '#FFFFFF',
+        backgroundColor: '#FFFFFF',
         solveColor: '#cc3737',
 
         // restrictions
