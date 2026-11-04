@@ -10,3 +10,16 @@ Check out the [maze generator demo](https://keesiemeijer.github.io/maze-generato
 ### LICENSE
 
 MIT
+
+## GitHub Pages (este repositório)
+
+Para publicar o standalone neste repositório:
+
+1. Abra **Settings → Pages** no repositório `Raphango/maze-generator-plus`.
+2. Em **Build and deployment**, selecione **Deploy from a branch**.
+3. Escolha a branch (ex.: `main`) e a pasta **`/ (root)`**.
+4. Acesse:
+   - `https://raphango.github.io/maze-generator-plus/`
+   - `https://raphango.github.io/maze-generator-plus/maze-generator-standalone.html`
+
+O `index.html` já está configurado para redirecionar para `maze-generator-standalone.html`.
