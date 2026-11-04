@@ -42,19 +42,6 @@ These limits can be changed in the standalone file if needed. Larger mazes
 consume more memory because the complete maze is kept in memory while using
 recursive backtracking.
 
-## GitHub Pages
-
-To publish the standalone version with GitHub Pages:
-
-1. Open **Settings → Pages** in the `Raphango/maze-generator-plus` repository.
-2. Under **Build and deployment**, select **GitHub Actions** as the source.
-3. Push changes to the `master` branch (or run the deploy workflow manually).
-4. Open:
-   - `https://raphango.github.io/maze-generator-plus/`
-   - `https://raphango.github.io/maze-generator-plus/maze-generator-standalone.html`
-
-The `index.html` file redirects to `maze-generator-standalone.html`.
-
 ## License
 
 MIT
@@ -106,18 +93,6 @@ células. Esses limites podem ser alterados no arquivo standalone, se necessári
 Labirintos maiores consomem mais memória porque o labirinto completo é mantido
 na memória durante o uso do retrocesso recursivo.
 
-## GitHub Pages
-
-Para publicar a versão standalone com o GitHub Pages:
-
-1. Abra **Settings → Pages** no repositório `Raphango/maze-generator-plus`.
-2. Em **Build and deployment**, selecione **GitHub Actions** como origem.
-3. Envie alterações para a branch `master` (ou execute o workflow de deploy manualmente).
-4. Acesse:
-   - `https://raphango.github.io/maze-generator-plus/`
-   - `https://raphango.github.io/maze-generator-plus/maze-generator-standalone.html`
-
-O arquivo `index.html` redireciona para `maze-generator-standalone.html`.
 
 ## Licença
 
