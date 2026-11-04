@@ -31,11 +31,11 @@ external dependencies.
 
 #### Desktop
 
-![Desktop screenshot of the standalone maze generator](./docs/screenshots/standalone-desktop.png)
+![Desktop screenshot of the standalone maze generator in English](./docs/screenshots/standalone-desktop-en.png)
 
 #### Mobile
 
-![Mobile screenshot of the standalone maze generator](./docs/screenshots/standalone-mobile.png)
+![Mobile screenshot of the standalone maze generator in English](./docs/screenshots/standalone-mobile-en.png)
 
 **Note:** Maze dimensions are restricted to values between 3 and 80 cells.
 These limits can be changed in the standalone file if needed. Larger mazes
