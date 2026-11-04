@@ -47,8 +47,8 @@ recursive backtracking.
 To publish the standalone version with GitHub Pages:
 
 1. Open **Settings → Pages** in the `Raphango/maze-generator-plus` repository.
-2. Under **Build and deployment**, select **Deploy from a branch**.
-3. Choose a branch (for example, `main`) and the **`/ (root)`** folder.
+2. Under **Build and deployment**, select **GitHub Actions** as the source.
+3. Push changes to the `master` branch (or run the deploy workflow manually).
 4. Open:
    - `https://raphango.github.io/maze-generator-plus/`
    - `https://raphango.github.io/maze-generator-plus/maze-generator-standalone.html`
@@ -111,8 +111,8 @@ na memória durante o uso do retrocesso recursivo.
 Para publicar a versão standalone com o GitHub Pages:
 
 1. Abra **Settings → Pages** no repositório `Raphango/maze-generator-plus`.
-2. Em **Build and deployment**, selecione **Deploy from a branch**.
-3. Escolha uma branch (por exemplo, `main`) e a pasta **`/ (root)`**.
+2. Em **Build and deployment**, selecione **GitHub Actions** como origem.
+3. Envie alterações para a branch `master` (ou execute o workflow de deploy manualmente).
 4. Acesse:
    - `https://raphango.github.io/maze-generator-plus/`
    - `https://raphango.github.io/maze-generator-plus/maze-generator-standalone.html`
