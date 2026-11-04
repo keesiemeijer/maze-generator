@@ -12,6 +12,7 @@ O projeto agora também inclui uma versão standalone em arquivo único, com int
 - UI repaginada com layout responsivo (desktop e mobile).
 - Controles visuais para dimensões, espessura da parede, entrada/saída, tendência e aberturas extras.
 - Personalização de aparência com seletor de cores e temas rápidos (Oceano, Floresta, Ameixa e Noite).
+- Opções de plano de fundo do canvas (`solid`, `gradient`, `grid`, `dots` e `paper`).
 - Ícones personalizados para entrada e saída.
 - Resolução de caminho com destaque da rota e opção de limpar a solução.
 - Exportação do labirinto em PNG e opção de impressão.
