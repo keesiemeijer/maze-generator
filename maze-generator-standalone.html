@@ -35,13 +35,13 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px;margin:0}
 .workspace{flex:1;min-width:0;padding:24px;padding-right:max(24px,env(safe-area-inset-right));display:flex;flex-direction:column;gap:18px}
 .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.topbar h2{margin:0;font-size:1.45rem;letter-spacing:-.035em}.topbar p{margin:5px 0 0;color:var(--muted);font-size:.84rem}.status{display:flex;align-items:center;gap:7px;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:999px;padding:7px 11px;font-size:.74rem;font-weight:750;white-space:nowrap}.status-dot{width:7px;height:7px;background:#22c55e;border-radius:50%}
 .canvas-card{position:relative;display:flex;align-items:center;justify-content:center;min-height:420px;flex:1;padding:26px;border:1px solid #d6dfec;border-radius:18px;background:rgba(255,255,255,.58);box-shadow:0 18px 45px #17203312;overflow:hidden}.canvas-card:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#94a3b81c 1px,transparent 1px),linear-gradient(90deg,#94a3b81c 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
-#maze{position:relative;z-index:1;display:block;max-width:100%;max-height:calc(100vh - 190px);width:auto;height:auto;border-radius:10px;box-shadow:0 10px 30px #17203324;background:#fff}
+#maze{position:relative;z-index:1;display:block;flex:none;border-radius:10px;box-shadow:0 10px 30px #17203324;background:#fff}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#ffffffa8}.stat b{display:block;font-size:1.02rem}.stat span{color:var(--muted);font-size:.7rem}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .toast{position:fixed;right:24px;bottom:24px;z-index:5;max-width:320px;padding:12px 15px;border-radius:10px;background:#172033;color:#fff;font-size:.8rem;box-shadow:0 10px 25px #17203333;opacity:0;transform:translateY(12px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}
-@media (max-width:900px){.app{display:block}.sidebar{position:static;width:auto;height:auto;padding:16px;padding-top:max(16px,env(safe-area-inset-top));border-right:0;border-bottom:1px solid var(--line)}.sidebar-footer{margin-top:16px}.workspace{padding:16px}.canvas-card{min-height:340px;padding:14px}#maze{max-height:65vh}}
+@media (max-width:900px){.app{display:block}.sidebar{position:static;width:auto;height:auto;padding:16px;padding-top:max(16px,env(safe-area-inset-top));border-right:0;border-bottom:1px solid var(--line)}.sidebar-footer{margin-top:16px}.workspace{padding:16px}.canvas-card{min-height:340px;padding:14px}}
 @media (max-width:560px){.topbar{display:block}.status{display:inline-flex;margin-top:12px}.stats{grid-template-columns:1fr 1fr}.color-grid{grid-template-columns:1fr}.button-row{grid-template-columns:1fr}.workspace{padding:10px}.canvas-card{min-height:280px}.sidebar{padding:14px}}
-@media print{body{background:#fff}.sidebar,.topbar,.stats,.toast{display:none!important}.workspace{padding:0}.canvas-card{border:0;box-shadow:none;padding:0;min-height:0;background:#fff}.canvas-card:before{display:none}#maze{max-width:100%;max-height:none;box-shadow:none}}
+@media print{body{background:#fff}.sidebar,.topbar,.stats,.toast{display:none!important}.workspace{padding:0}.canvas-card{border:0;box-shadow:none;padding:0;min-height:0;background:#fff;overflow:visible}.canvas-card:before{display:none}#maze{width:auto!important;height:auto!important;max-width:100%!important;max-height:95vh!important;box-shadow:none;border-radius:0}}
 </style>
 </head>
 <body>
@@ -91,8 +91,8 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px;margin:0}
 </aside>
 <main class="workspace">
   <header class="topbar"><div><h2>Seu labirinto</h2><p>Configure, personalize e exporte uma criação pronta para usar.</p></div><div class="status"><i class="status-dot"></i><span id="status">Pronto para gerar</span></div></header>
-  <div class="canvas-card"><canvas id="maze" aria-label="Labirinto gerado"></canvas></div>
-  <div class="stats"><div class="stat"><b id="stat-size">20 × 20</b><span>células</span></div><div class="stat"><b id="stat-path">—</b><span>passos na solução</span></div><div class="stat"><b id="stat-open">0</b><span>aberturas extras</span></div><div class="stat"><b id="stat-time">—</b><span>tempo de geração</span></div></div>
+  <div class="canvas-card"><canvas id="maze" role="img" aria-label="Labirinto gerado"></canvas></div>
+  <div class="stats"><div class="stat"><b id="stat-size">20 × 20</b><span>células</span></div><div class="stat"><b id="stat-path">—</b><span>células na solução</span></div><div class="stat"><b id="stat-open">0</b><span>aberturas extras</span></div><div class="stat"><b id="stat-time">—</b><span>tempo de geração</span></div></div>
 </main>
 </div>
 <div id="toast" class="toast" role="status"></div>
@@ -100,43 +100,242 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px;margin:0}
 (() => {
   "use strict";
   const $ = id => document.getElementById(id);
-  const canvas = $("maze"), ctx = canvas.getContext("2d");
-  const state = { matrix: [], width: 20, height: 20, cell: 8, start: null, end: null, solution: [], settings: {}, selectedTheme: null };
+  const canvas = $("maze"), ctx = canvas.getContext("2d"), card = document.querySelector(".canvas-card");
+
+  // chave da configuração salva -> id do elemento
+  const FIELDS = {width:"width",height:"height",cell:"wall-size",entry:"entry",bias:"bias",remove:"remove-walls",startIcon:"start-icon",endIcon:"end-icon",wall:"wall-color",path:"path-color",bg:"bg-color",icon:"icon-color",background:"background"};
+  const TEXT_GLYPHS = new Set(["▶","✦"]); // glifos de texto: só estes obedecem à cor dos ícones
+  const ICON_GAP = 4;                      // folga (px) entre a abertura e o ícone
+
+  // base = labirinto sem aberturas de entrada/saída; grid = base + aberturas
+  const state = { base:null, grid:null, pos:null, extra:0, solution:[], settings:{}, selectedTheme:"ocean" };
   const store = { get(k){ try{return localStorage.getItem("mazeGenerator_"+k)}catch(e){return null} }, set(k,v){try{localStorage.setItem("mazeGenerator_"+k,v)}catch(e){}} };
   const clamp = (n,min,max) => Math.min(max,Math.max(min,n));
-  const random = (n) => Math.floor(Math.random()*n);
+  const random = n => Math.floor(Math.random()*n);
+
   function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600)}
-  function settings(){
-    const s = {width:clamp(parseInt($("width").value,10)||20,3,80),height:clamp(parseInt($("height").value,10)||20,3,80),cell:clamp(parseInt($("wall-size").value,10)||8,2,24),entry:$("entry").value,bias:$("bias").value,remove:parseInt($("remove-walls").value,10)||0,startIcon:$("start-icon").value,endIcon:$("end-icon").value,wall:$("wall-color").value,path:$("path-color").value,bg:$("bg-color").value,icon:$("icon-color").value,background:$("background").value,theme:state.selectedTheme};
-    $("width").value=s.width;$("height").value=s.height;state.settings=s;return s;
+
+  /* ---------- cores ---------- */
+  const rgb = hex => { const n=parseInt(hex.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; };
+  const rgba = (hex,a) => { const [r,g,b]=rgb(hex); return `rgba(${r},${g},${b},${a})`; };
+  const mix = (a,b,t) => { const x=rgb(a),y=rgb(b); return "#"+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,"0")).join(""); };
+
+  /* ---------- configurações ---------- */
+  function readInt(id,def,min,max){const v=parseInt($(id).value,10);return clamp(Number.isNaN(v)?def:v,min,max)}
+  function readSettings(){
+    const s = {
+      width:readInt("width",20,3,80), height:readInt("height",20,3,80), cell:readInt("wall-size",8,2,24), remove:readInt("remove-walls",0,0,80),
+      entry:$("entry").value, bias:$("bias").value, startIcon:$("start-icon").value, endIcon:$("end-icon").value,
+      wall:$("wall-color").value, path:$("path-color").value, bg:$("bg-color").value, icon:$("icon-color").value,
+      background:$("background").value, theme:state.selectedTheme
+    };
+    $("width").value=s.width; $("height").value=s.height;
+    state.settings=s; return s;
   }
-  function persist(){const s=settings();store.set("settings",JSON.stringify(s))}
-  function restore(){try{const s=JSON.parse(store.get("settings")||"null");if(!s)return;state.selectedTheme=s.theme||null;Object.entries(s).forEach(([k,v])=>{const el=$(k==="cell"?"wall-size":k==="remove"?"remove-walls":k==="startIcon"?"start-icon":k==="endIcon"?"end-icon":k==="wall"?"wall-color":k==="path"?"path-color":k==="bg"?"bg-color":k==="icon"?"icon-color":k);if(el)el.value=v});document.querySelectorAll(".swatch").forEach(button=>button.setAttribute("aria-pressed",button.dataset.theme===state.selectedTheme))}catch(e){} updateLabels()}
+  const persist = () => store.set("settings",JSON.stringify(state.settings));
+  function syncSwatches(){document.querySelectorAll(".swatch").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.theme===state.selectedTheme)))}
   function updateLabels(){$("wall-size-value").textContent=$("wall-size").value+" px";$("remove-walls-value").textContent=$("remove-walls").value}
-  function emptyGrid(w,h){return Array.from({length:h},()=>Array(w).fill(1))}
-  function carve(s){
-    const w=s.width,h=s.height,g=emptyGrid(w*2+1,h*2+1),seen=Array.from({length:h},()=>Array(w).fill(false));
-    const stack=[[random(w),random(h)]]; seen[stack[0][1]][stack[0][0]]=true; g[stack[0][1]*2+1][stack[0][0]*2+1]=0;
-    const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
-    while(stack.length){let [x,y]=stack[stack.length-1], options=dirs.filter(([dx,dy])=>x+dx>=0&&x+dx<w&&y+dy>=0&&y+dy<h&&!seen[y+dy][x+dx]);if(!options.length){stack.pop();continue}
-      if(s.bias==="horizontal"){const preferred=options.filter(([dx])=>dx!==0);if(preferred.length)options=preferred}
-      if(s.bias==="vertical"){const preferred=options.filter(([,dy])=>dy!==0);if(preferred.length)options=preferred}
-      const [dx,dy]=options[random(options.length)],nx=x+dx,ny=y+dy;seen[ny][nx]=true;g[y*2+1+dy][x*2+1+dx]=0;g[ny*2+1][nx*2+1]=0;stack.push([nx,ny]);
+  function restore(){
+    let s=null; try{s=JSON.parse(store.get("settings")||"null")}catch(e){}
+    if(s&&typeof s==="object"){
+      for(const [key,id] of Object.entries(FIELDS)){
+        if(!(key in s))continue;
+        const el=$(id), v=String(s[key]);
+        if(el.tagName==="SELECT"&&![...el.options].some(o=>o.value===v))continue; // valor que não existe mais
+        if(el.type==="color"&&!/^#[0-9a-f]{6}$/i.test(v))continue;
+        el.value=v;
+      }
+      if(s.theme===null||typeof s.theme==="string")state.selectedTheme=s.theme;
     }
-    return g;
+    syncSwatches(); updateLabels();
   }
-  function addOpenings(matrix,count){let candidates=[];for(let y=1;y<matrix.length-1;y++)for(let x=1;x<matrix[0].length-1;x++){if(matrix[y][x]===1&&((x%2===0&&y%2===1)||(x%2===1&&y%2===0)))candidates.push([x,y])}for(let i=candidates.length-1;i>0;i--){const j=random(i+1);[candidates[i],candidates[j]]=[candidates[j],candidates[i]]}let opened=0;for(const [x,y] of candidates){if(opened>=count)break;const connected=(x%2===0)?(matrix[y][x-1]===0&&matrix[y][x+1]===0):(matrix[y-1][x]===0&&matrix[y+1][x]===0);if(connected){matrix[y][x]=0;opened++}}return opened}
-  function positions(s){const maxX=s.width*2-1,maxY=s.height*2-1;if(!s.entry)return {start:null,end:null};if(s.entry==="diagonal")return {start:{x:1,y:1,gate:{x:1,y:0}},end:{x:maxX,y:maxY,gate:{x:maxX,y:maxY+1}}};if(s.entry==="horizontal"){const y=(Math.floor((maxY-1)/2/2)*2)+1;return {start:{x:1,y,gate:{x:0,y}},end:{x:maxX,y,gate:{x:maxX+1,y}}}}const x=(Math.floor((maxX-1)/2/2)*2)+1;return {start:{x,y:1,gate:{x,y:0}},end:{x,y:maxY,gate:{x,y:maxY+1}}}}
-  function openEntries(matrix,pos){if(!pos.start||!pos.end)return;matrix[pos.start.gate.y][pos.start.gate.x]=0;matrix[pos.end.gate.y][pos.end.gate.x]=0}
-  function solvePath(matrix,start,end){if(!start||!end)return [];const q=[start],came=new Map([[(start.x+","+start.y),null]]),dirs=[[-1,0],[1,0],[0,-1],[0,1]];while(q.length){const p=q.shift();if(p.x===end.x&&p.y===end.y)break;for(const [dx,dy] of dirs){const nx=p.x+dx,ny=p.y+dy,key=nx+","+ny;if(ny>=0&&ny<matrix.length&&nx>=0&&nx<matrix[0].length&&matrix[ny][nx]===0&&!came.has(key)){came.set(key,p);q.push({x:nx,y:ny})}}}const out=[];let cur=end;while(cur){out.push(cur);cur=came.get(cur.x+","+cur.y)}return out.length&&out[out.length-1].x===start.x&&out[out.length-1].y===start.y?out.reverse():[]}
-  function background(s){const w=canvas.width,h=canvas.height;ctx.fillStyle=s.bg;ctx.fillRect(0,0,w,h);if(s.background==="gradient"){const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,s.bg);g.addColorStop(1,"#dbeafe");ctx.fillStyle=g;ctx.fillRect(0,0,w,h)}if(s.background==="grid"||s.background==="paper"){ctx.strokeStyle=s.background==="paper"?"#cbd5e144":"#94a3b833";ctx.lineWidth=1;for(let x=0;x<w;x+=s.cell*2){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<h;y+=s.cell*2){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}}if(s.background==="dots"){ctx.fillStyle="#64748b44";for(let x=s.cell;x<w;x+=s.cell*2)for(let y=s.cell;y<h;y+=s.cell*2)ctx.fillRect(x,y,2,2)}}
-  function draw(){const s=state.settings,m=state.matrix;canvas.width=m[0].length*s.cell;canvas.height=m.length*s.cell;background(s);ctx.fillStyle=s.wall;for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++)if(m[y][x])ctx.fillRect(x*s.cell,y*s.cell,s.cell,s.cell);if(state.solution.length){ctx.fillStyle=s.path;ctx.globalAlpha=.88;for(const p of state.solution)ctx.fillRect(p.x*s.cell,p.y*s.cell,s.cell,s.cell);ctx.globalAlpha=1}const mark=(p,text)=>{if(!p||!text)return;ctx.font=Math.max(12,s.cell*1.65)+"px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillStyle=s.icon;ctx.fillText(text,(p.x+.5)*s.cell,(p.y+.5)*s.cell)};mark(state.start,s.startIcon);mark(state.end,s.endIcon);fitCanvas()}
-  function fitCanvas(){const card=document.querySelector(".canvas-card"),maxW=card.clientWidth-34,maxH=Math.max(200,window.innerHeight-215),scale=Math.min(1,maxW/canvas.width,maxH/canvas.height);canvas.style.width=canvas.width*scale+"px";canvas.style.height=canvas.height*scale+"px"}
-  function generate(){const started=performance.now(),s=settings();state.width=s.width;state.height=s.height;state.cell=s.cell;state.matrix=carve(s);const opened=addOpenings(state.matrix,s.remove);const pos=positions(s);openEntries(state.matrix,pos);state.start=pos.start;state.end=pos.end;state.solution=[];draw();$("stat-size").textContent=s.width+" × "+s.height;$("stat-open").textContent=opened;$("stat-path").textContent="—";$("stat-time").textContent=Math.round(performance.now()-started)+" ms";$("status").textContent="Labirinto gerado";persist()}
-  function solve(){if(!state.matrix.length)return;state.solution=solvePath(state.matrix,state.start,state.end);draw();$("stat-path").textContent=state.solution.length?state.solution.length+" passos":"—";$("status").textContent=state.solution.length?"Rota encontrada":"Sem rota disponível";toast(state.solution.length?"Rota mais curta destacada.":"Escolha entradas ou remova menos paredes.")}
-  function download(){const a=document.createElement("a");a.download="maze.png";a.href=canvas.toDataURL("image/png");a.click();toast("PNG baixado.")}
-  function bind(){["width","height","wall-size","entry","bias","remove-walls","start-icon","end-icon","wall-color","path-color","bg-color","icon-color","background"].forEach(id=>$(id).addEventListener("change",()=>{updateLabels();persist();if(["wall-size","entry","start-icon","end-icon","wall-color","path-color","bg-color","icon-color","background"].includes(id))generate()}));$("wall-size").addEventListener("input",updateLabels);$("remove-walls").addEventListener("input",updateLabels);$("generate").onclick=generate;$("solve").onclick=solve;$("clear-solution").onclick=()=>{state.solution=[];draw();$("stat-path").textContent="—";$("status").textContent="Rota limpa"};$("download").onclick=download;$("print").onclick=()=>window.print();window.addEventListener("resize",fitCanvas);document.querySelectorAll(".swatch").forEach(b=>b.onclick=()=>{state.selectedTheme=b.dataset.theme;["wall","path","bg","icon"].forEach(k=>$(k==="wall"?"wall-color":k==="path"?"path-color":k==="bg"?"bg-color":"icon-color").value=b.dataset[k]);document.querySelectorAll(".swatch").forEach(x=>x.setAttribute("aria-pressed",x===b));generate()})}
-  restore();bind();generate();
+
+  /* ---------- geração (recursive backtracking, grade plana) ---------- */
+  function carve(s){
+    const w=s.width,h=s.height,cols=w*2+1,rows=h*2+1,data=new Uint8Array(cols*rows).fill(1);
+    const seen=new Uint8Array(w*h),stack=new Int32Array(w*h),opt=new Int8Array(4);
+    const DX=[-1,1,0,0],DY=[0,0,-1,1];
+    let sp=0;
+    const sx=random(w),sy=random(h);
+    seen[sy*w+sx]=1; data[(sy*2+1)*cols+sx*2+1]=0; stack[sp++]=sy*w+sx;
+    while(sp){
+      const cur=stack[sp-1],x=cur%w,y=(cur/w)|0;
+      let n=0;
+      for(let d=0;d<4;d++){const nx=x+DX[d],ny=y+DY[d];if(nx>=0&&nx<w&&ny>=0&&ny<h&&!seen[ny*w+nx])opt[n++]=d}
+      if(!n){sp--;continue}
+      if(s.bias){const wantH=s.bias==="horizontal";let m=0;for(let i=0;i<n;i++){const d=opt[i];if((d<2)===wantH)opt[m++]=d}if(m)n=m}
+      const d=opt[random(n)],nx=x+DX[d],ny=y+DY[d];
+      seen[ny*w+nx]=1;
+      data[(y*2+1+DY[d])*cols+x*2+1+DX[d]]=0;   // derruba a parede entre as duas células
+      data[(ny*2+1)*cols+nx*2+1]=0;
+      stack[sp++]=ny*w+nx;
+    }
+    return {cols,rows,data};
+  }
+  // Remove paredes internas (entre duas células abertas) para criar caminhos alternativos
+  function addOpenings(base,count){
+    const {cols,rows,data}=base,cand=[];
+    for(let y=1;y<rows-1;y++)for(let x=1;x<cols-1;x++)if(((x+y)&1)===1&&data[y*cols+x]===1)cand.push(y*cols+x);
+    const n=Math.min(count,cand.length);
+    for(let i=0;i<n;i++){const j=i+random(cand.length-i);[cand[i],cand[j]]=[cand[j],cand[i]];data[cand[i]]=0}
+    return n;
+  }
+
+  /* ---------- entrada / saída ---------- */
+  // "gate" = abertura na borda; "dir" = direção para fora do labirinto
+  function positions(base,entry){
+    if(!entry)return null;
+    const {cols,rows}=base,lx=cols-2,ly=rows-2,mid=n=>Math.floor((n-1)/2)*2+1;
+    if(entry==="diagonal")return {start:{x:1,y:1,gate:{x:1,y:0},dir:[0,-1]},end:{x:lx,y:ly,gate:{x:lx,y:rows-1},dir:[0,1]}};
+    if(entry==="horizontal"){const y=mid((rows-1)/2);return {start:{x:1,y,gate:{x:0,y},dir:[-1,0]},end:{x:lx,y,gate:{x:cols-1,y},dir:[1,0]}}}
+    const x=mid((cols-1)/2);return {start:{x,y:1,gate:{x,y:0},dir:[0,-1]},end:{x,y:ly,gate:{x,y:rows-1},dir:[0,1]}};
+  }
+  function applyEntries(){
+    const b=state.base,data=b.data.slice(),pos=positions(b,state.settings.entry);
+    if(pos){data[pos.start.gate.y*b.cols+pos.start.gate.x]=0;data[pos.end.gate.y*b.cols+pos.end.gate.x]=0}
+    state.grid={cols:b.cols,rows:b.rows,data}; state.pos=pos;
+  }
+
+  /* ---------- solução (BFS com arrays tipados, de abertura a abertura) ---------- */
+  function solvePath(g,a,b){
+    if(!a||!b)return [];
+    const {cols,rows,data}=g,N=cols*rows,prev=new Int32Array(N).fill(-2),q=new Int32Array(N);
+    const s=a.y*cols+a.x,t=b.y*cols+b.x;
+    let head=0,tail=0; q[tail++]=s; prev[s]=-1;
+    while(head<tail){
+      const c=q[head++]; if(c===t)break;
+      const x=c%cols,y=(c/cols)|0;
+      if(x>0&&data[c-1]===0&&prev[c-1]===-2){prev[c-1]=c;q[tail++]=c-1}
+      if(x<cols-1&&data[c+1]===0&&prev[c+1]===-2){prev[c+1]=c;q[tail++]=c+1}
+      if(y>0&&data[c-cols]===0&&prev[c-cols]===-2){prev[c-cols]=c;q[tail++]=c-cols}
+      if(y<rows-1&&data[c+cols]===0&&prev[c+cols]===-2){prev[c+cols]=c;q[tail++]=c+cols}
+    }
+    if(prev[t]===-2)return [];
+    const out=[]; for(let c=t;c!==-1;c=prev[c])out.push(c);
+    return out.reverse();
+  }
+
+  /* ---------- desenho ---------- */
+  // Margem ao redor do labirinto: é onde ficam os ícones de entrada/saída
+  function layout(s){
+    const iconPx=Math.round(clamp(s.cell*3,24,44));
+    const hasIcons=!!state.pos&&!!(s.startIcon||s.endIcon);
+    return {iconPx,pad:hasIcons?iconPx+ICON_GAP+6:Math.max(s.cell*2,8)};
+  }
+  function paintBackground(s,pad){
+    const w=canvas.width,h=canvas.height,kind=s.background;
+    ctx.fillStyle=kind==="paper"?mix(s.bg,"#d9bf8f",.14):s.bg; ctx.fillRect(0,0,w,h);
+    if(kind==="solid")return;
+    if(kind==="gradient"){const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,s.bg);g.addColorStop(1,mix(s.bg,s.icon,.28));ctx.fillStyle=g;ctx.fillRect(0,0,w,h);return}
+    // padrões alinhados ao centro das células do corredor, a partir da origem do labirinto
+    const unit=s.cell*2,step=unit*Math.max(1,Math.ceil(14/unit)),phase=((pad+s.cell*1.5)%step+step)%step;
+    if(kind==="grid"){
+      ctx.fillStyle=rgba(s.wall,.14);
+      for(let x=phase;x<w;x+=step)ctx.fillRect(Math.floor(x),0,1,h);
+      for(let y=phase;y<h;y+=step)ctx.fillRect(0,Math.floor(y),w,1);
+    }else if(kind==="paper"){
+      ctx.fillStyle=rgba(s.icon,.24);
+      for(let y=phase;y<h;y+=step)ctx.fillRect(0,Math.floor(y),w,1);
+    }else if(kind==="dots"){
+      const r=clamp(s.cell*.2,1,3);
+      ctx.fillStyle=rgba(s.wall,.4); ctx.beginPath();
+      for(let x=phase;x<w;x+=step)for(let y=phase;y<h;y+=step){ctx.moveTo(x+r,y);ctx.arc(x,y,r,0,Math.PI*2)}
+      ctx.fill();
+    }
+  }
+  function drawIcon(p,text,pad,c,iconPx,color){
+    if(!p||!text)return;
+    const off=c/2+ICON_GAP+iconPx/2;
+    const cx=pad+(p.gate.x+.5)*c+p.dir[0]*off,cy=pad+(p.gate.y+.5)*c+p.dir[1]*off;
+    ctx.font=Math.round(iconPx*.82)+'px system-ui,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+    ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillStyle=color;
+    ctx.fillText(TEXT_GLYPHS.has(text)?text+"\uFE0E":text,cx,cy);
+  }
+  function draw(){
+    const s=state.settings,g=state.grid; if(!g)return;
+    const {cols,rows,data}=g,c=s.cell,{pad,iconPx}=layout(s);
+    canvas.width=cols*c+pad*2; canvas.height=rows*c+pad*2;
+    paintBackground(s,pad);
+    ctx.fillStyle=s.wall;
+    for(let y=0;y<rows;y++){const o=y*cols;for(let x=0;x<cols;){if(!data[o+x]){x++;continue}let e=x+1;while(e<cols&&data[o+e])e++;ctx.fillRect(pad+x*c,pad+y*c,(e-x)*c,c);x=e}}
+    if(state.solution.length){ctx.fillStyle=s.path;for(const i of state.solution)ctx.fillRect(pad+(i%cols)*c,pad+((i/cols)|0)*c,c,c)}
+    if(state.pos){drawIcon(state.pos.start,s.startIcon,pad,c,iconPx,s.icon);drawIcon(state.pos.end,s.endIcon,pad,c,iconPx,s.icon)}
+    canvas.setAttribute("aria-label","Labirinto de "+(cols-1)/2+" por "+(rows-1)/2+" células");
+    fitCanvas();
+  }
+  function fitCanvas(){
+    if(!canvas.width)return;
+    const cs=getComputedStyle(card),small=window.innerWidth<=900;
+    const maxW=card.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+    const maxH=small?window.innerHeight*.7:Math.max(240,window.innerHeight-270);
+    const scale=Math.min(1,maxW/canvas.width,maxH/canvas.height);
+    canvas.style.width=Math.floor(canvas.width*scale)+"px";
+    canvas.style.height=Math.floor(canvas.height*scale)+"px";
+  }
+  let frame=0;
+  function refresh(){ // redesenha (sem gerar outro labirinto), agrupando eventos de slider/cor
+    if(frame)return;
+    frame=requestAnimationFrame(()=>{frame=0;readSettings();draw();persist()});
+  }
+
+  /* ---------- ações ---------- */
+  function generate(){
+    const t0=performance.now(),s=readSettings();
+    state.base=carve(s); state.extra=addOpenings(state.base,s.remove);
+    applyEntries(); state.solution=[]; draw();
+    $("stat-size").textContent=s.width+" × "+s.height; $("stat-open").textContent=state.extra;
+    $("stat-path").textContent="—"; $("stat-time").textContent=Math.round(performance.now()-t0)+" ms";
+    $("status").textContent="Labirinto gerado"; persist();
+  }
+  function solve(){
+    if(!state.grid)return;
+    if(!state.pos){$("status").textContent="Sem entrada e saída";toast("Escolha uma opção de entrada e saída para resolver.");return}
+    state.solution=solvePath(state.grid,state.pos.start.gate,state.pos.end.gate);
+    draw();
+    const {cols}=state.grid,cells=state.solution.reduce((n,i)=>n+(((i%cols)&1)&&(((i/cols)|0)&1)?1:0),0);
+    $("stat-path").textContent=cells?cells+" células":"—";
+    $("status").textContent=cells?"Rota encontrada":"Sem rota disponível";
+    toast(cells?"Rota mais curta destacada.":"Não há rota entre a entrada e a saída.");
+  }
+  function clearSolution(){state.solution=[];draw();$("stat-path").textContent="—";$("status").textContent="Rota limpa"}
+  function download(){
+    canvas.toBlob(blob=>{
+      if(!blob){toast("Não foi possível gerar o PNG.");return}
+      const url=URL.createObjectURL(blob),a=document.createElement("a");
+      a.href=url;a.download="labirinto.png";document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);toast("PNG baixado.");
+    },"image/png");
+  }
+
+  /* ---------- eventos ---------- */
+  function bind(){
+    // estruturais: mudam o labirinto em si
+    ["width","height","bias","remove-walls"].forEach(id=>$(id).addEventListener("change",generate));
+    $("remove-walls").addEventListener("input",updateLabels);
+    // entrada/saída: reaproveita o mesmo labirinto, só muda as aberturas
+    $("entry").addEventListener("change",()=>{
+      readSettings(); if(!state.base)return;
+      applyEntries(); state.solution=[]; $("stat-path").textContent="—"; $("status").textContent="Entrada e saída atualizadas";
+      draw(); persist();
+    });
+    // visuais: apenas redesenham (ao vivo em sliders e seletores de cor)
+    ["wall-size","start-icon","end-icon","wall-color","path-color","bg-color","icon-color","background"].forEach(id=>{
+      const el=$(id),live=el.type==="range"||el.type==="color";
+      el.addEventListener(live?"input":"change",()=>{
+        if(el.type==="color"){state.selectedTheme=null;syncSwatches()}  // ajuste manual de cor desmarca o tema
+        updateLabels(); refresh();
+      });
+    });
+    document.querySelectorAll(".swatch").forEach(b=>b.addEventListener("click",()=>{
+      state.selectedTheme=b.dataset.theme;
+      $("wall-color").value=b.dataset.wall;$("path-color").value=b.dataset.path;$("bg-color").value=b.dataset.bg;$("icon-color").value=b.dataset.icon;
+      syncSwatches(); refresh();
+    }));
+    $("generate").onclick=generate; $("solve").onclick=solve; $("clear-solution").onclick=clearSolution;
+    $("download").onclick=download; $("print").onclick=()=>window.print();
+    let rz=0; window.addEventListener("resize",()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(fitCanvas)});
+  }
+  restore(); bind(); generate();
 })();
 </script>
 </body>
