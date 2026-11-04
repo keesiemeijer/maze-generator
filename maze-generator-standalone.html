@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#172554">
+<meta name="description" content="Gerador de labirintos autocontido, sem dependências externas.">
+<title>Maze Generator · Labirinto</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23172554'/%3E%3Cpath d='M13 13h16v7H20v12h12v7H13zm38 0H35v7h7v12H30v7h21zM13 51h16v-7H20V32h-7zm38 0H35v-7h7V32h9z' fill='%2360a5fa'/%3E%3C/svg%3E">
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#64748b;--panel:#fff;--line:#dbe3ef;--accent:#2563eb;--accent-dark:#1d4ed8;--soft:#eff6ff;--stage:#eaf0f8}
+*{box-sizing:border-box}
+html{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--stage);color:var(--ink);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;background:radial-gradient(circle at 70% -10%,#dbeafe 0,#eaf0f8 42%,#e8edf5 100%)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh;min-height:100dvh}
+.sidebar{position:sticky;top:0;width:342px;height:100vh;height:100dvh;overflow:auto;flex:none;padding:24px;padding-left:max(24px,env(safe-area-inset-left));background:rgba(255,255,255,.96);border-right:1px solid var(--line);box-shadow:10px 0 25px #0f172a0b;z-index:2}
+.brand{display:flex;align-items:center;gap:12px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#172554;color:#93c5fd;box-shadow:inset 0 0 0 1px #ffffff22}
+.brand-mark svg{width:26px;height:26px}
+h1{font-size:1.28rem;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.03em}.brand small{display:block;color:var(--muted);font-size:.76rem;margin-top:3px}
+.section{padding:18px 0;border-bottom:1px solid var(--line)}.section:last-of-type{border-bottom:0}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;font-size:.92rem}.section-title span{color:var(--muted);font-size:.72rem;font-weight:600}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:.75rem;font-weight:700;color:#475569;margin-bottom:5px}
+input[type=number],select,input[type=text]{width:100%;height:42px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:inherit;outline:0}
+input[type=number]:focus,select:focus,input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px #2563eb22}
+input[type=range]{width:100%;accent-color:var(--accent);height:30px;margin:0}
+.range-line{display:flex;align-items:center;gap:9px}.value{min-width:40px;padding:4px 7px;text-align:center;border-radius:7px;background:var(--soft);color:#1d4ed8;font-size:.8rem;font-weight:800}
+.hint{margin:7px 0 0;color:var(--muted);font-size:.73rem;line-height:1.4}
+.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.color-field{display:flex;align-items:center;gap:7px}.color-field label{flex:1;margin:0;font-size:.73rem}.color-field input[type=color]{width:37px;height:34px;padding:2px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
+.swatches{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.swatch{width:27px;height:27px;border:2px solid #fff;outline:1px solid #cbd5e1;border-radius:50%;padding:0}.swatch[aria-pressed=true]{outline:2px solid var(--accent);outline-offset:2px}
+.button-stack{display:grid;gap:9px;padding-top:18px}.btn{min-height:44px;border:0;border-radius:9px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 13px;font-weight:750;font-size:.88rem;transition:.15s ease}.btn svg{width:18px;height:18px}.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-dark)}.btn-dark{background:#172033;color:#fff}.btn-dark:hover{background:#0f172a}.btn-light{background:#f1f5f9;color:#334155;border:1px solid #dbe3ef}.btn-light:hover{background:#e2e8f0}.button-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sidebar-footer{margin-top:20px;padding-top:14px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:.68rem;line-height:1.45}
+.workspace{flex:1;min-width:0;padding:24px;padding-right:max(24px,env(safe-area-inset-right));display:flex;flex-direction:column;gap:18px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.topbar h2{margin:0;font-size:1.45rem;letter-spacing:-.035em}.topbar p{margin:5px 0 0;color:var(--muted);font-size:.84rem}.status{display:flex;align-items:center;gap:7px;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:999px;padding:7px 11px;font-size:.74rem;font-weight:750;white-space:nowrap}.status-dot{width:7px;height:7px;background:#22c55e;border-radius:50%}
+.canvas-card{position:relative;display:flex;align-items:center;justify-content:center;min-height:420px;flex:1;padding:26px;border:1px solid #d6dfec;border-radius:18px;background:rgba(255,255,255,.58);box-shadow:0 18px 45px #17203312;overflow:hidden}.canvas-card:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#94a3b81c 1px,transparent 1px),linear-gradient(90deg,#94a3b81c 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+#maze{position:relative;z-index:1;display:block;max-width:100%;max-height:calc(100vh - 190px);width:auto;height:auto;border-radius:10px;box-shadow:0 10px 30px #17203324;background:#fff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#ffffffa8}.stat b{display:block;font-size:1.02rem}.stat span{color:var(--muted);font-size:.7rem}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.toast{position:fixed;right:24px;bottom:24px;z-index:5;max-width:320px;padding:12px 15px;border-radius:10px;background:#172033;color:#fff;font-size:.8rem;box-shadow:0 10px 25px #17203333;opacity:0;transform:translateY(12px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}
+@media (max-width:900px){.app{display:block}.sidebar{position:static;width:auto;height:auto;padding:16px;padding-top:max(16px,env(safe-area-inset-top));border-right:0;border-bottom:1px solid var(--line)}.sidebar-footer{margin-top:16px}.workspace{padding:16px}.canvas-card{min-height:340px;padding:14px}#maze{max-height:65vh}}
+@media (max-width:560px){.topbar{display:block}.status{display:inline-flex;margin-top:12px}.stats{grid-template-columns:1fr 1fr}.color-grid{grid-template-columns:1fr}.button-row{grid-template-columns:1fr}.workspace{padding:10px}.canvas-card{min-height:280px}.sidebar{padding:14px}}
+@media print{body{background:#fff}.sidebar,.topbar,.stats,.toast{display:none!important}.workspace{padding:0}.canvas-card{border:0;box-shadow:none;padding:0;min-height:0;background:#fff}.canvas-card:before{display:none}#maze{max-width:100%;max-height:none;box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v3H7v4h4v3H4m16-10h-6v3h3v4h-4v3h7M4 20h6v-3H7v-4H4m16 7h-6v-3h3v-4h3"/></svg></div>
+    <div><h1>Maze Generator</h1><small>Labirintos em qualquer lugar</small></div>
+  </div>
+  <section class="section">
+    <h2 class="section-title">Dimensões <span>3–80 células</span></h2>
+    <div class="row"><div class="field"><label for="width">Colunas</label><input id="width" type="number" value="20" min="3" max="80"></div><div class="field"><label for="height">Linhas</label><input id="height" type="number" value="20" min="3" max="80"></div></div>
+    <div class="field" style="margin-top:10px"><label for="wall-size">Espessura das paredes</label><div class="range-line"><input id="wall-size" type="range" min="2" max="24" value="8"><output id="wall-size-value" class="value">8 px</output></div></div>
+  </section>
+  <section class="section">
+    <h2 class="section-title">Percurso</h2>
+    <div class="row"><div class="field"><label for="entry">Entrada e saída</label><select id="entry"><option value="diagonal">Diagonal</option><option value="horizontal">Esquerda → direita</option><option value="vertical">Topo → baixo</option><option value="">Sem aberturas</option></select></div><div class="field"><label for="bias">Tendência</label><select id="bias"><option value="">Aleatória</option><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></div></div>
+    <div class="field" style="margin-top:10px"><label for="remove-walls">Aberturas extras <span id="remove-walls-value" class="value" style="float:right">0</span></label><input id="remove-walls" type="range" min="0" max="80" value="0"></div>
+    <p class="hint">Aberturas extras criam múltiplos caminhos. O botão “Resolver” destaca uma rota possível.</p>
+  </section>
+  <section class="section">
+    <h2 class="section-title">Ícones personalizados</h2>
+    <div class="row"><div class="field"><label for="start-icon">Entrada</label><select id="start-icon"><option value="🚩">Bandeira</option><option value="🟢">Círculo</option><option value="⭐">Estrela</option><option value="🏠">Casa</option><option value="▶">Seta</option><option value="">Nenhum</option></select></div><div class="field"><label for="end-icon">Saída</label><select id="end-icon"><option value="🏁">Chegada</option><option value="🔴">Círculo</option><option value="🏆">Troféu</option><option value="💎">Diamante</option><option value="✦">Brilho</option><option value="">Nenhum</option></select></div></div>
+  </section>
+  <section class="section">
+    <h2 class="section-title">Aparência</h2>
+    <div class="color-grid">
+      <div class="color-field"><label for="wall-color">Paredes</label><input id="wall-color" type="color" value="#172554"></div>
+      <div class="color-field"><label for="path-color">Solução</label><input id="path-color" type="color" value="#f97316"></div>
+      <div class="color-field"><label for="bg-color">Fundo</label><input id="bg-color" type="color" value="#ffffff"></div>
+      <div class="color-field"><label for="icon-color">Ícones</label><input id="icon-color" type="color" value="#2563eb"></div>
+    </div>
+    <div class="field" style="margin-top:11px"><label for="background">Plano de fundo</label><select id="background"><option value="solid">Sólido</option><option value="gradient">Gradiente suave</option><option value="grid">Grade</option><option value="dots">Pontos</option><option value="paper">Papel</option></select></div>
+    <div class="swatches" aria-label="Temas rápidos">
+      <button class="swatch" title="Oceano" aria-label="Tema oceano" aria-pressed="true" data-theme="ocean" style="background:#dbeafe" data-wall="#172554" data-path="#f97316" data-bg="#ffffff" data-icon="#2563eb"></button>
+      <button class="swatch" title="Floresta" aria-label="Tema floresta" aria-pressed="false" data-theme="forest" style="background:#dcfce7" data-wall="#14532d" data-path="#ea580c" data-bg="#fffdf5" data-icon="#16a34a"></button>
+      <button class="swatch" title="Ameixa" aria-label="Tema ameixa" aria-pressed="false" data-theme="plum" style="background:#f3e8ff" data-wall="#581c87" data-path="#db2777" data-bg="#fff7fc" data-icon="#9333ea"></button>
+      <button class="swatch" title="Noite" aria-label="Tema noite" aria-pressed="false" data-theme="night" style="background:#1e293b" data-wall="#e2e8f0" data-path="#fbbf24" data-bg="#0f172a" data-icon="#38bdf8"></button>
+    </div>
+  </section>
+  <div class="button-stack">
+    <button id="generate" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4m-4 4a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg>Gerar novo labirinto</button>
+    <div class="button-row"><button id="solve" class="btn btn-dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Resolver</button><button id="clear-solution" class="btn btn-light">Limpar rota</button></div>
+    <div class="button-row"><button id="download" class="btn btn-light">Baixar PNG</button><button id="print" class="btn btn-light">Imprimir</button></div>
+  </div>
+  <footer class="sidebar-footer">Algoritmo de recursive backtracking + busca em largura.<br>Arquivo único, sem bibliotecas ou conexão.</footer>
+</aside>
+<main class="workspace">
+  <header class="topbar"><div><h2>Seu labirinto</h2><p>Configure, personalize e exporte uma criação pronta para usar.</p></div><div class="status"><i class="status-dot"></i><span id="status">Pronto para gerar</span></div></header>
+  <div class="canvas-card"><canvas id="maze" aria-label="Labirinto gerado"></canvas></div>
+  <div class="stats"><div class="stat"><b id="stat-size">20 × 20</b><span>células</span></div><div class="stat"><b id="stat-path">—</b><span>passos na solução</span></div><div class="stat"><b id="stat-open">0</b><span>aberturas extras</span></div><div class="stat"><b id="stat-time">—</b><span>tempo de geração</span></div></div>
+</main>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const canvas = $("maze"), ctx = canvas.getContext("2d");
+  const state = { matrix: [], width: 20, height: 20, cell: 8, start: null, end: null, solution: [], settings: {}, selectedTheme: null };
+  const store = { get(k){ try{return localStorage.getItem("mazeGenerator_"+k)}catch(e){return null} }, set(k,v){try{localStorage.setItem("mazeGenerator_"+k,v)}catch(e){}} };
+  const clamp = (n,min,max) => Math.min(max,Math.max(min,n));
+  const random = (n) => Math.floor(Math.random()*n);
+  function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600)}
+  function settings(){
+    const s = {width:clamp(parseInt($("width").value,10)||20,3,80),height:clamp(parseInt($("height").value,10)||20,3,80),cell:clamp(parseInt($("wall-size").value,10)||8,2,24),entry:$("entry").value,bias:$("bias").value,remove:parseInt($("remove-walls").value,10)||0,startIcon:$("start-icon").value,endIcon:$("end-icon").value,wall:$("wall-color").value,path:$("path-color").value,bg:$("bg-color").value,icon:$("icon-color").value,background:$("background").value,theme:state.selectedTheme};
+    $("width").value=s.width;$("height").value=s.height;state.settings=s;return s;
+  }
+  function persist(){const s=settings();store.set("settings",JSON.stringify(s))}
+  function restore(){try{const s=JSON.parse(store.get("settings")||"null");if(!s)return;state.selectedTheme=s.theme||null;Object.entries(s).forEach(([k,v])=>{const el=$(k==="cell"?"wall-size":k==="remove"?"remove-walls":k==="startIcon"?"start-icon":k==="endIcon"?"end-icon":k==="wall"?"wall-color":k==="path"?"path-color":k==="bg"?"bg-color":k==="icon"?"icon-color":k);if(el)el.value=v});document.querySelectorAll(".swatch").forEach(button=>button.setAttribute("aria-pressed",button.dataset.theme===state.selectedTheme))}catch(e){} updateLabels()}
+  function updateLabels(){$("wall-size-value").textContent=$("wall-size").value+" px";$("remove-walls-value").textContent=$("remove-walls").value}
+  function emptyGrid(w,h){return Array.from({length:h},()=>Array(w).fill(1))}
+  function carve(s){
+    const w=s.width,h=s.height,g=emptyGrid(w*2+1,h*2+1),seen=Array.from({length:h},()=>Array(w).fill(false));
+    const stack=[[random(w),random(h)]]; seen[stack[0][1]][stack[0][0]]=true; g[stack[0][1]*2+1][stack[0][0]*2+1]=0;
+    const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+    while(stack.length){let [x,y]=stack[stack.length-1], options=dirs.filter(([dx,dy])=>x+dx>=0&&x+dx<w&&y+dy>=0&&y+dy<h&&!seen[y+dy][x+dx]);if(!options.length){stack.pop();continue}
+      if(s.bias==="horizontal"){const preferred=options.filter(([dx])=>dx!==0);if(preferred.length)options=preferred}
+      if(s.bias==="vertical"){const preferred=options.filter(([,dy])=>dy!==0);if(preferred.length)options=preferred}
+      const [dx,dy]=options[random(options.length)],nx=x+dx,ny=y+dy;seen[ny][nx]=true;g[y*2+1+dy][x*2+1+dx]=0;g[ny*2+1][nx*2+1]=0;stack.push([nx,ny]);
+    }
+    return g;
+  }
+  function addOpenings(matrix,count){let candidates=[];for(let y=1;y<matrix.length-1;y++)for(let x=1;x<matrix[0].length-1;x++){if(matrix[y][x]===1&&((x%2===0&&y%2===1)||(x%2===1&&y%2===0)))candidates.push([x,y])}for(let i=candidates.length-1;i>0;i--){const j=random(i+1);[candidates[i],candidates[j]]=[candidates[j],candidates[i]]}let opened=0;for(const [x,y] of candidates){if(opened>=count)break;const connected=(x%2===0)?(matrix[y][x-1]===0&&matrix[y][x+1]===0):(matrix[y-1][x]===0&&matrix[y+1][x]===0);if(connected){matrix[y][x]=0;opened++}}return opened}
+  function positions(s){const maxX=s.width*2-1,maxY=s.height*2-1;if(!s.entry)return {start:null,end:null};if(s.entry==="diagonal")return {start:{x:1,y:1,gate:{x:1,y:0}},end:{x:maxX,y:maxY,gate:{x:maxX,y:maxY+1}}};if(s.entry==="horizontal"){const y=(Math.floor((maxY-1)/2/2)*2)+1;return {start:{x:1,y,gate:{x:0,y}},end:{x:maxX,y,gate:{x:maxX+1,y}}}}const x=(Math.floor((maxX-1)/2/2)*2)+1;return {start:{x,y:1,gate:{x,y:0}},end:{x,y:maxY,gate:{x,y:maxY+1}}}}
+  function openEntries(matrix,pos){if(!pos.start||!pos.end)return;matrix[pos.start.gate.y][pos.start.gate.x]=0;matrix[pos.end.gate.y][pos.end.gate.x]=0}
+  function solvePath(matrix,start,end){if(!start||!end)return [];const q=[start],came=new Map([[(start.x+","+start.y),null]]),dirs=[[-1,0],[1,0],[0,-1],[0,1]];while(q.length){const p=q.shift();if(p.x===end.x&&p.y===end.y)break;for(const [dx,dy] of dirs){const nx=p.x+dx,ny=p.y+dy,key=nx+","+ny;if(ny>=0&&ny<matrix.length&&nx>=0&&nx<matrix[0].length&&matrix[ny][nx]===0&&!came.has(key)){came.set(key,p);q.push({x:nx,y:ny})}}}const out=[];let cur=end;while(cur){out.push(cur);cur=came.get(cur.x+","+cur.y)}return out.length&&out[out.length-1].x===start.x&&out[out.length-1].y===start.y?out.reverse():[]}
+  function background(s){const w=canvas.width,h=canvas.height;ctx.fillStyle=s.bg;ctx.fillRect(0,0,w,h);if(s.background==="gradient"){const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,s.bg);g.addColorStop(1,"#dbeafe");ctx.fillStyle=g;ctx.fillRect(0,0,w,h)}if(s.background==="grid"||s.background==="paper"){ctx.strokeStyle=s.background==="paper"?"#cbd5e144":"#94a3b833";ctx.lineWidth=1;for(let x=0;x<w;x+=s.cell*2){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<h;y+=s.cell*2){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}}if(s.background==="dots"){ctx.fillStyle="#64748b44";for(let x=s.cell;x<w;x+=s.cell*2)for(let y=s.cell;y<h;y+=s.cell*2)ctx.fillRect(x,y,2,2)}}
+  function draw(){const s=state.settings,m=state.matrix;canvas.width=m[0].length*s.cell;canvas.height=m.length*s.cell;background(s);ctx.fillStyle=s.wall;for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++)if(m[y][x])ctx.fillRect(x*s.cell,y*s.cell,s.cell,s.cell);if(state.solution.length){ctx.fillStyle=s.path;ctx.globalAlpha=.88;for(const p of state.solution)ctx.fillRect(p.x*s.cell,p.y*s.cell,s.cell,s.cell);ctx.globalAlpha=1}const mark=(p,text)=>{if(!p||!text)return;ctx.font=Math.max(12,s.cell*1.65)+"px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillStyle=s.icon;ctx.fillText(text,(p.x+.5)*s.cell,(p.y+.5)*s.cell)};mark(state.start,s.startIcon);mark(state.end,s.endIcon);fitCanvas()}
+  function fitCanvas(){const card=document.querySelector(".canvas-card"),maxW=card.clientWidth-34,maxH=Math.max(200,window.innerHeight-215),scale=Math.min(1,maxW/canvas.width,maxH/canvas.height);canvas.style.width=canvas.width*scale+"px";canvas.style.height=canvas.height*scale+"px"}
+  function generate(){const started=performance.now(),s=settings();state.width=s.width;state.height=s.height;state.cell=s.cell;state.matrix=carve(s);const opened=addOpenings(state.matrix,s.remove);const pos=positions(s);openEntries(state.matrix,pos);state.start=pos.start;state.end=pos.end;state.solution=[];draw();$("stat-size").textContent=s.width+" × "+s.height;$("stat-open").textContent=opened;$("stat-path").textContent="—";$("stat-time").textContent=Math.round(performance.now()-started)+" ms";$("status").textContent="Labirinto gerado";persist()}
+  function solve(){if(!state.matrix.length)return;state.solution=solvePath(state.matrix,state.start,state.end);draw();$("stat-path").textContent=state.solution.length?state.solution.length+" passos":"—";$("status").textContent=state.solution.length?"Rota encontrada":"Sem rota disponível";toast(state.solution.length?"Rota mais curta destacada.":"Escolha entradas ou remova menos paredes.")}
+  function download(){const a=document.createElement("a");a.download="maze.png";a.href=canvas.toDataURL("image/png");a.click();toast("PNG baixado.")}
+  function bind(){["width","height","wall-size","entry","bias","remove-walls","start-icon","end-icon","wall-color","path-color","bg-color","icon-color","background"].forEach(id=>$(id).addEventListener("change",()=>{updateLabels();persist();if(["wall-size","entry","start-icon","end-icon","wall-color","path-color","bg-color","icon-color","background"].includes(id))generate()}));$("wall-size").addEventListener("input",updateLabels);$("remove-walls").addEventListener("input",updateLabels);$("generate").onclick=generate;$("solve").onclick=solve;$("clear-solution").onclick=()=>{state.solution=[];draw();$("stat-path").textContent="—";$("status").textContent="Rota limpa"};$("download").onclick=download;$("print").onclick=()=>window.print();window.addEventListener("resize",fitCanvas);document.querySelectorAll(".swatch").forEach(b=>b.onclick=()=>{state.selectedTheme=b.dataset.theme;["wall","path","bg","icon"].forEach(k=>$(k==="wall"?"wall-color":k==="path"?"path-color":k==="bg"?"bg-color":"icon-color").value=b.dataset[k]);document.querySelectorAll(".swatch").forEach(x=>x.setAttribute("aria-pressed",x===b));generate()})}
+  restore();bind();generate();
+})();
+</script>
+</body>
+</html>
